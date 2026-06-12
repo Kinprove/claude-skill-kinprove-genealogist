@@ -1,0 +1,22 @@
+Kinprove Genealogist Claude Skill — Third-party content notice
+
+This Skill package contains code, prompts, and original documentation
+licensed under MIT (see LICENSE).
+
+It also includes content derived from the Shared cM Project v4.0 by
+Blaine Bettinger, licensed under Creative Commons Attribution 4.0
+International (CC BY 4.0). Specifically, the relationship-to-cM range
+tables in references/cm-ranges.md and references/mrca-estimation.md
+adapt those v4.0 ranges.
+
+CC BY 4.0 terms require attribution and a notice of any changes made.
+Attribution: "Adapted from the Shared cM Project v4.0 by Blaine Bettinger
+(https://thegeneticgenealogist.com/, CC BY 4.0)". Changes from the
+v4.0 source: reformatting into Markdown tables and pairing with
+Kinprove platform-specific notes.
+
+A full copy of the CC BY 4.0 license is at:
+https://creativecommons.org/licenses/by/4.0/
+
+The MIT license in LICENSE applies to the Skill's original code and
+documentation. It does NOT relicense the CC BY 4.0 third-party data.
