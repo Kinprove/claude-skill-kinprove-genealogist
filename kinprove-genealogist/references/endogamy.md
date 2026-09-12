@@ -13,7 +13,7 @@ not diagnose endogamy or quantify its probability.
 | Source project's `dna_assignment_profile` | The source profile and effective evidence filtering resolved from runtime configuration | That all stored pairs were computed with today's settings |
 | Raw detection and import | Source, detector/import settings, coordinate build, and result provenance where exposed | The thresholds used later for triangulation or hypothesis evidence |
 | Triangulation | Stored engine/provider result, overlap method, and applicable pipeline thresholds | Phased inheritance or the hypothesis scorer's evidence floor |
-| POI `endogamy_mode` | Effective scoring mode and whether explicit or inherited; inspect the native expected distribution and variance adjustment | A change to observed cM, an increased segment cutoff, or a new detector run |
+| POI `endogamy_mode` | Persisted effective scoring mode where exposed; inspect the native expected distribution and variance adjustment | The flag's creation-time origin, a change to observed cM, an increased segment cutoff, or a new detector run |
 | Hypothesis evidence | The actual minimum-segment filter, retained/excluded evidence, selected pair, and scoring context | A calibrated probability of endogamy or an automatic long-segment bonus |
 
 The maintained backend resolves the hypothesis evidence floor from the
@@ -23,6 +23,13 @@ repository configuration has a 7 cM default hypothesis-evidence floor and a
 12 cM endogamous-profile floor; these are configuration defaults for that
 stage, **not runtime observations or detector/X/triangulation thresholds**.
 Do not substitute this table for the connected deployment's effective values.
+
+At POI creation, an omitted `endogamy_mode` may default from the source
+profile once. The application persists the resulting boolean, not whether
+the caller supplied it or it was defaulted. That origin is not retained or
+exposed by the checked connector; do not describe the stored mode as live
+inheritance from the source profile or reconstruct its origin from today's
+settings. Without a separate creation record, its origin remains unknown.
 
 Read effective settings and their provenance through the live connector when
 available. A bare POI flag or profile label is insufficient to establish an
