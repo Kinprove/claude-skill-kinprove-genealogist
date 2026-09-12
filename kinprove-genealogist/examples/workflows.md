@@ -111,8 +111,10 @@ The documented counterpart family has these paths:
 Dana is one tester with two ancestral paths. Mara, Niko, and Dana form a
 parent/child group, not three independent copies of the same evidence. Even
 the other branch is not certified independent merely by its different label.
-Mara has two provider kits; the supplied pair evidence below names one chosen
-kit per person. Never add her second kit as another participant or sum both.
+Mara has two provider kits, labeled Mara-A and Mara-B in this fixture. All
+listed Mara pairs select Mara-A; every other named tester has one kit.
+The input source is synthetic raw pair data. Never add Mara-B as another
+participant or sum both kits' measurements.
 
 Fixture metadata specifies a source profile of **`default`**, POI
 **`endogamy_mode: true`**, and a verified **7 cM hypothesis-evidence floor**
