@@ -1,55 +1,65 @@
-# Triangulation
+# Triangulation and interval evidence
 
-A **triangulation** is three (or more) people who share the same DNA segment on the same chromosome at the same coordinates. When valid, it strongly implies they share a common ancestor at that segment's locus.
+Distinguish a shared-match network, an all-three pairwise interval overlap,
+and a phased shared haplotype. A returned triangulation row must be interpreted
+according to its method; the word alone does not certify identity by descent
+or a transmitting ancestral couple.
 
-## The trio requirement
+## Read the evidence contract
 
-Two-person matches are not triangulations — they're just IBD (identity by descent) pair matches. For a true triangulation you need:
+- A↔B and A↔C matches alone are ICW (in-common-with), not three-way
+  triangulation. Establish the B↔C measurement and comparable intervals too.
+- All three pair matches overlapping on the same chromosome and coordinate
+  build support further investigation. Unphased overlap does not prove that
+  all three share the same parental copy. No universal probability follows
+  from the number of overlapping pairs.
+- A validated phased shared segment supports common inheritance, but naming
+  its source still requires documented descent and consideration of other
+  paths, especially in endogamous pedigrees.
 
-1. **Three people**, all pair-matching one another on the same chromosome
-2. **Overlapping segment coordinates** (typically ≥7 cM overlap)
-3. **All three matching each other**, not just A↔B and A↔C separately
+## Kinprove output
 
-Two-of-three pair matches without the third pair = "ICW" (in-common-with), NOT triangulation.
+`get_kit_triangulations` returns stored engine-computed and provider-imported
+triads. The live contract describes computed evidence as
+`pairwise_interval_overlap`, with `phasing: unphased`; imported evidence has
+provider provenance and may have unknown phasing. Read the `evidence` block
+and coordinate `build`. Do not upgrade either type to phased evidence.
 
-## Why it matters
+Constituent pairwise segments in a computed triad cover that eligible triad,
+not every segment for the pair. Provider-imported triads and imported pair
+rows also have distinct availability. An empty triad result does not mean
+there are no pairwise segments or no genealogical relationship.
 
-A pair match could be:
+Native hypothesis triangulation support can be inspected with
+`get_hypothesis_detail`, including its optional `triangulation_trace`. That
+trace reproduces aggregate contributions and deduplication using available
+evidence; aggregate agreement does not certify historical provenance.
+`cross_validation_score` reuses pairwise cM and is not independent validation.
+Read native components rather than applying an extra overlap or length bonus.
 
-- A real shared segment from a common ancestor (IBD)
-- A coincidental match from different ancestors (IBC — identity by chance)
-- A pile-up region (frequent matches in many people, low information)
+## X and endogamy
 
-Triangulation reduces the IBC probability geometrically — three people coincidentally matching at the same locus is rare. So a triangulated segment is high-confidence evidence of a common ancestor.
+Keep X separate from autosomal evidence. X-path fields describe what the
+recorded tree demonstrates; read blockage/unknown reasons before declaring a
+path impossible. The native X-triangulation component is additive-only; this
+is distinct from participant-fit X-path checks. Neither supplies phase or
+ancestral-couple attribution. See [X inheritance](x-dna-inheritance.md).
 
-## Kinprove triangulation pipeline
+Multiple descent paths and population sharing can make a real overlap
+ambiguous as to ancestor. Check source/pipeline filters and provenance where
+available. A POI endogamy toggle does not establish tighter triangulation or
+pair-evidence thresholds. Do not assume a blacklist eliminated every
+uninformative region in every stored source.
 
-Kinprove computes triangulations in a Phase 2 batch job over C(N,3) trios from Phase 1 pairwise IBD. Result: `DnaTriangulatedSegment` rows.
+## Hand-off
 
-When using the Kinprove MCP connector, prefer triangulated segments over raw pairwise matches when building hypotheses. Tool: `get_kit_triangulations` (Claude surfaces it as `mcp__kinprove__get_kit_triangulations`) returns the triangulated segments touching a specific DNA kit.
-
-## X-chromosome triangulation
-
-X-segments form their own triangulations (`chromosome='X'`). X-triangulation is **additive evidence only** in Kinprove's hypothesis scoring — it boosts confidence but never penalizes (because X-DNA inheritance is sparse and unidirectional from father→daughter only).
-
-## Limitations
-
-- Triangulation evidence still doesn't TELL you which ancestor — you need tree work to identify the MRCA.
-- Endogamy creates pseudo-triangulations: people sharing many ancestors triangulate "everywhere" without a unique MRCA. Use endogamy mode + tighter cutoffs.
-- Pile-up regions (HLA, centromeres) generate spurious triangulations. Kinprove applies a centromere blacklist by default.
-
-## Hand-off pattern
-
-When you identify a triangulated trio:
-
-1. Confirm all three pair-match each other (not just one to the others)
-2. Identify the segment's chromosome + coordinates
-3. Check the trees of all three for a common ancestor candidate at the expected generation depth
-4. If MRCA found, propose the hypothesis with cM-range + triangulation count as evidence
-5. If MRCA not found, suggest building back the tree of the weakest/shallowest of the three until convergence
+State the method and scope of the overlap, the candidate descent connection,
+and the record or transmission evidence needed next. Leave the transmitting
+couple unassigned when the evidence cannot distinguish competing paths.
 
 ## Related
 
-- [mrca-estimation.md](mrca-estimation.md) — turning a triangulated trio into an MRCA depth estimate
-- [kinprove-connector-tools.md](kinprove-connector-tools.md) — the `get_kit_triangulations` tool
-- [endogamy.md](endogamy.md) — why triangulation degrades in endogamous populations
+- [Endogamy](endogamy.md) — overlapping paths and research priority
+- [Connector guide](kinprove-connector-tools.md) — native triad and pair scopes
+- [X inheritance](x-dna-inheritance.md) — X-path constraints
+- [MRCA estimation](mrca-estimation.md) — candidate depths, not attribution

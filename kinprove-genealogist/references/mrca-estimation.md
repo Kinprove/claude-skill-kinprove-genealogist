@@ -1,66 +1,56 @@
-# MRCA (Most Recent Common Ancestor) generation depth estimation
+# MRCA depth and relationship hypotheses
 
-Given a shared cM amount, estimate how many generations back the MRCA likely lies.
+Shared cM can suggest overlapping relationship possibilities. It does not
+supply a unique MRCA or generation depth. Use the documented tree and native
+Kinprove expectations before translating a total into a research target.
 
-## Quick reference
+## Count each person's path separately
 
-"Depth" = generations back to the MRCA from EACH tested person. The MRCA is the convergence point both individuals descend from. This is symmetric only for cousin-type relationships (Nth cousin = both N+1 generations from the MRCA). Aunt/uncle/niece/nephew rows are intrinsically asymmetric and are listed in the closest depth row that applies to one party.
+Depth is the number of parent-child links from the person to the proposed
+common ancestor. The two depths need not be equal.
 
-| Shared cM | Cousin-row depth (both sides) | Symmetric relationship | Asymmetric / mixed-depth relationships at this cM band |
-|---|---|---|---|
-| 2200–3700 | n/a | parent/child, full sibling | — |
-| 1100–2400 | 1 (grandparent ↔ self) | grandparent / grandchild, half sibling | aunt/uncle ↔ niece/nephew (mixed depths 1 vs 2) |
-| 500–1300 | 2 (1C ↔ MRCA = grandparents) | 1st cousin, half 1C | great-grandparent ↔ great-grandchild, half aunt/uncle ↔ half niece/nephew |
-| 200–600 | 3 (2C ↔ MRCA = great-grandparents) | 2nd cousin | 1C1R, half 2C |
-| 60–250 | 4 (3C ↔ MRCA = 2× great-grandparents) | 3rd cousin | 2C1R, 1C2R |
-| 20–110 | 5 (4C ↔ MRCA = 3× great-grandparents) | 4th cousin | 3C1R, 2C2R |
-| 0–60 | 6+ | 5th cousin and beyond | may not register at autosomal cM ranges |
+| Relationship | Depths to the common ancestor | Interpretation |
+|---|---|---|
+| Full first cousins | 2 and 2 | Shared grandparents |
+| First cousins once removed | 2 and 3 | One side has an additional generation |
+| Full second cousins | 3 and 3 | Shared great-grandparents |
+| Second cousins once removed | 3 and 4 | Asymmetric paths |
+| Full third cousins | 4 and 4 | Shared great-great-grandparents |
+| Full fourth cousins | 5 and 5 | A possible research depth, not a DNA cutoff |
+| Aunt/uncle and niece/nephew | 1 and 2 | Shared parents/grandparents from the respective perspectives |
 
-## Better: use ranges, not averages
+Half relationships share one ancestor rather than the corresponding couple;
+path depths alone do not distinguish full and half relationships. Multiple
+paths also need separate representation without manually adding expected cM.
+Do not apply a fixed “halve cM per MRCA generation” rule: adding a generation
+on one side differs from adding one on both, and observed inheritance varies.
 
-A 250 cM match could be:
+## Use native evidence and published ranges at their proper scope
 
-- 2C in average range (avg 229)
-- 1C2R lower-end (1C2R avg 433 but range 102–980)
-- 2C1R upper-end
-- Half-2C upper-end
+When connected, inspect an existing POI study with `list_hypotheses` and
+`get_hypothesis_detail`. Read native observed/expected sharing, variance,
+participant depths, and actual common-ancestor paths. For authorized new
+work, use the POI/readiness/generation sequence in the
+[connector guide](kinprove-connector-tools.md). Check known relationships
+across related POIs instead of estimating each person's placement in isolation.
 
-In practice you cannot distinguish these from cM alone. **Use tree convergence to confirm**, not cM math.
+[Shared cM Project v4 ranges](cm-ranges.md) are useful context for explaining
+why several relationships remain possible. Cite the specific range when
+using it and distinguish it from a native model's expected interval. Do not
+feed a manually filtered endogamy total into a cM-only lookup as corrected
+relationship odds. Missing measurements are not zero, and a native `good`
+fit is not proof of the candidate couple.
 
-## Generations and shared cM math
+## Hand-off
 
-Each MRCA generation back, the average expected shared cM roughly halves (autosomal). So, using depth = generations from each person back to the MRCA:
-
-- depth 1 (grandparent / grandchild, half sibling): ~1759–1766 cM
-- depth 2 (1C, half-1C): ~433–866 cM (avg 866 for 1C; ~433 for half-1C)
-- depth 3 (2C): ~229 cM
-- depth 4 (3C): ~73 cM
-- depth 5 (4C): ~35 cM
-- depth 6 (5C): ~25 cM
-
-But variance grows with depth, so MRCA estimation from cM alone is noisy past depth 3.
-
-## Kinprove platform support
-
-When you have the Kinprove connector, the platform's hypothesis engine already does MRCA estimation across the user's tree using genetic + tree evidence combined. Tools (MCP protocol names; Claude surfaces them as `mcp__kinprove__<name>`):
-
-- `generate_hypotheses` — runs the full hypothesis pipeline for a POI project
-- `list_hypotheses` — lists candidate MRCAs already generated, ranked by score
-- `get_hypothesis_detail` — pulls the evidence paths and triangulation support for a specific hypothesis
-
-Prefer these over hand-math when the data is in Kinprove. See `kinprove-connector-tools.md` for the full catalog and the POI-project prerequisite for `generate_hypotheses`.
-
-## Hand-off pattern
-
-When estimating an MRCA:
-
-1. Give a relationship-category range (not a single point estimate)
-2. Cite the cM range explicitly with the Shared cM Project source
-3. Identify what tree work would narrow the prediction (e.g., "build out the maternal grandfather's parents to see if they match the proposed MRCA name")
-4. Flag uncertainty — call out endogamy, multiple-path possibilities, or NPE risks
+Give the supported candidate relationship/path depths, the material unresolved
+link or alternative path, and the next record or comparison needed. Record
+convergence and segment evidence support a hypothesis at their actual
+strength; neither an identical name nor an unphased overlap confirms an MRCA.
 
 ## Related
 
-- [cm-ranges.md](cm-ranges.md) — the Shared cM Project ranges this estimation depends on
-- [triangulation.md](triangulation.md) — triangulated evidence that confirms an MRCA candidate
-- [kinprove-connector-tools.md](kinprove-connector-tools.md) — the hypothesis-engine tools that automate MRCA estimation
+- [cM ranges](cm-ranges.md) — attributed empirical ranges
+- [Endogamy](endogamy.md) — native multipath expectations and segment profiles
+- [Triangulation](triangulation.md) — interval evidence and attribution limits
+- [Connector guide](kinprove-connector-tools.md) — hypothesis tools and result scope
