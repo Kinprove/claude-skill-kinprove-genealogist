@@ -1,76 +1,58 @@
 # X-chromosome inheritance
 
-X-DNA follows different inheritance rules from autosomal DNA. Used correctly, it dramatically narrows hypothesis space. Used carelessly, it produces false confidence.
+Keep X-DNA separate from autosomal DNA. Under the usual sex-chromosome
+inheritance model, a male inherits his X from his mother; a female inherits
+one X from each parent. A father transmits his X to daughters, not sons.
 
-## The basic rules
+## Trace the particular segment's possible paths
 
-- **Males** inherit one X from their mother only (their Y comes from their father).
-- **Females** inherit one X from each parent.
-- **A father transmits NO X-DNA to his sons.** This is the most important rule.
-- A father transmits his single X (which he got from his mother) to all his daughters.
+A male's X ancestry starts through his mother. At each generation, exclude a
+father-to-son transmission for that X path; do not exclude every paternal
+connection in the wider pedigree. A female can inherit X through her father,
+whose own X came from his mother.
 
-So: starting from a male, the X-DNA can only have come from:
+A credible shared X segment can constrain its transmitting paths. It does
+not by itself prove that the proposed couple transmitted it: relatives can
+share through another path. Coordinate overlap is not parental phasing.
+Unknown sex, missing ancestry, or no demonstrated path in an incomplete tree
+is not the same as a biologically impossible recorded transmission.
 
-- His mother
-- Through his mother, from either of HER parents — her mother or her father. Any X that came from her father originated as that father's single X, which he in turn inherited from HIS mother. Every female has a father by definition, so there is no "only if" condition here.
-
-## The X-inheritance chart
-
-The X-only ancestry tree of a male:
-
-- Mother (full X contribution)
-- Mother's mother + mother's father (his mother) — partial through recombination
-- Continue up only through females or through females and their fathers' mothers
-
-You can construct an "X-only ancestor list" by following these rules backward. For a typical male, his X-only ancestors are a sparse subset of his full ancestor list. For example, his paternal grandparents contribute zero X.
-
-## Why this matters for hypothesis work
-
-If two people share significant X-DNA, the MRCA must lie in BOTH of their X-only ancestor sets. This often eliminates entire branches of the tree from consideration.
-
-Example: two males share a substantial X-segment. The MRCA cannot be on either male's paternal grandfather's line. That excludes ~25% of the typical tree.
-
-## When X-evidence helps
-
-- Distinguishing maternal vs. paternal side hypotheses
-- Confirming a hypothesis when the proposed MRCA is on a valid X-path
-- Ruling out hypotheses where the proposed MRCA is paternally-excluded
-
-## When X-evidence misleads
-
-- **Low cM thresholds.** X-segments below ~10 cM are noisy and over-reported. Kinprove uses `MIN_CM_X = 6.0` (lower than autosomal because X is shorter) but raises to 10.0 in endogamy mode.
-- **Endogamy.** Pseudo-X-triangulations form easily.
-- **Recombination is sparse on X** — segments tend to be longer when they exist, but the chance of an X-segment surviving past 3–4 generations is lower than autosomal.
+Absence of a shared X segment does not generally exclude a genealogical
+relationship. The relative may not have inherited it, the source may lack
+usable X data, or the result may fall outside the relevant filter. Do not
+infer X-body data availability from a provider's file header alone.
 
 ## Kinprove platform behavior
 
-X-DNA is **reported separately** in Kinprove:
+Read the current connector schemas and evidence source:
 
-- `shared_cm_total` = autosomal only (industry standard)
-- `shared_cm_x` + `segment_count_x` = X-specific
-- X-segments enter the triangulation input → produce `DnaTriangulatedSegment` with `chromosome='X'`
-- X-triangulation bonus in hypothesis scoring is **additive-only** (never penalizes) — requires valid X-path via participant fits
+- DNA-check `observed_autosomal_cm` / `autosomal_segments` and
+  `observed_x_cm` / `x_segments` are separate. A general raw-kit `total_cm`
+  is not automatically autosomal-only; see the [connector guide](kinprove-connector-tools.md).
+- `get_xdna_analysis` provides native X analysis through its declared actions.
+  `get_kit_triangulations` can return X triads with method, phasing, parental
+  origin, and recorded-tree X-path metadata.
+- `get_hypothesis_detail.participant_fits` can report `observed_x_cm`,
+  `x_path_valid`, and `x_blockage_reason`. A null verdict can mean the check
+  was not evaluated or the path could not be established; read the reason.
+- The native X-triangulation scoring component is additive-only. Other
+  X-path checks have separate meanings; inspect actual native components
+  rather than treating all X results as a universal bonus or exclusion.
 
-Tools (when the connector is active; MCP protocol names, surfaced as `mcp__kinprove__<name>`):
+Detector, import, triangulation, and scoring significance thresholds are
+separate settings. Establish the applicable effective value where exposed.
+A POI `endogamy_mode` flag does not establish an increased X threshold. If a
+cutoff is unavailable, say so instead of supplying a universal 10/15 cM rule.
 
-- `get_xdna_analysis` — X-specific analysis for a POI project (5 actions: analysis, impossible_matches, validations, reachable_ancestors, descendants)
-- `get_kit_triangulations` — returns triangulations including X-chromosome trios
+## Hand-off
 
-## FTDNA caveat
-
-5 of 17 FTDNA kits in test data are missing X-body SNPs (kits 115, 116, 120, 129, 134 per Kinprove's gotcha records). FTDNA exports a header for the X-chromosome but no body data. When working with FTDNA kits, confirm X-data is present before relying on X-evidence.
-
-## Hand-off pattern
-
-When invoking X-evidence:
-
-1. Confirm the X-segment is above threshold (>10 cM, ideally >15 cM in endogamy)
-2. Verify the X-inheritance path is valid for the proposed MRCA from both people's perspectives
-3. State explicitly: "The X-evidence is consistent / inconsistent with this hypothesis"
-4. Use X to narrow hypothesis space, not as standalone proof
+State whether the observed X evidence is consistent with the particular
+recorded path, what remains unknown, and which relationship or data check
+would resolve it. Do not turn a missing/unknown X result into an exclusion or
+an unphased overlap into a named ancestral assignment.
 
 ## Related
 
-- [triangulation.md](triangulation.md) — X-chromosome triangulation and its additive-only scoring
-- [endogamy.md](endogamy.md) — why X thresholds tighten in endogamy mode
-- [kinprove-connector-tools.md](kinprove-connector-tools.md) — the `get_xdna_analysis` tool
+- [Triangulation](triangulation.md) — unphased X and autosomal interval evidence
+- [Endogamy](endogamy.md) — separate filtering and POI scoring scopes
+- [Connector guide](kinprove-connector-tools.md) — fields and source limitations

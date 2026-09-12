@@ -5,8 +5,8 @@ A Claude Skill that turns Claude into a Kinprove-aware genealogy research partne
 ## What it does
 
 - Activates whenever you ask Claude about DNA matches, triangulation, family-tree hypotheses, or genealogy research
-- Uses reasoning patterns specific to genetic genealogy (cM ranges, MRCA estimation, X-DNA rules, endogamy detection)
-- Ships worked example workflows in `examples/` (grouping a project's matches by ancestor, MRCA estimation, unexpected-close-match triage, endogamy detection)
+- Uses reasoning patterns specific to genetic genealogy (cM ranges, MRCA estimation, X-DNA rules, endogamous family comparisons)
+- Ships worked example workflows in `examples/` (grouping a project's matches by ancestor, MRCA estimation, unexpected-close-match triage, related-POI family comparisons, missing-evidence handling)
 - When paired with the Kinprove MCP connector, reads your actual matches/projects/trees instead of asking you to paste data
 - Works standalone without the connector — give it pasted notes/CSVs and it reasons from those
 
@@ -50,4 +50,4 @@ That third-party content keeps its CC BY 4.0 terms — see `NOTICE`.
 
 ## Source
 
-Maintained at <https://github.com/kinprove/claude-skill-kinprove-genealogist> (planned). For Kinprove product support, visit <https://kinprove.io/support>.
+Maintained at <https://github.com/kinprove/claude-skill-kinprove-genealogist>. For Kinprove product support, visit <https://kinprove.io/support>.

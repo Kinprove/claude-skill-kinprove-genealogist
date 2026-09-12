@@ -1,122 +1,175 @@
-# Kinprove MCP Connector — tool catalog
+# Kinprove MCP Connector — research guide
 
-When the Kinprove MCP connector is enabled in Claude, the Kinprove tool family
-becomes available. Use these instead of asking the user to paste data they
-already have in Kinprove.
+Discover the connected server's current tool descriptions and input schemas
+before using this guide. Names below are MCP protocol names; a client may
+expose them with a prefix such as `mcp__kinprove__`. Do not assume an inventory
+size, new fields, or an unreleased tool. Use returned short-ids in the correct
+project/POI/person/kit/scenario scope, not names or internal integer IDs.
 
-Tool names below are the **MCP protocol names** (snake_case). When Claude
-exposes them they are fully-qualified as `mcp__kinprove__<name>` — e.g. the
-`generate_hypotheses` tool surfaces as `mcp__kinprove__generate_hypotheses`.
-The exact set of tools depends on the connector version, so treat this list as
-a guide and discover the live names from the tool registry rather than
-hard-coding them. All data is scoped to the authenticated user's account.
+## Scope and authorization
 
-## Projects
+A user asking you to inspect a connected project authorizes the necessary
+bounded reads. Reuse that authorization and the established project. Use
+`list_projects` only when the project still needs resolving; `get_project`
+returns project metadata, counts, DNA profile, and latest-check status, not
+all people, kits, or hypotheses. Discover those through their scoped tools.
 
-- `list_projects` — show the user's projects
-- `get_project` — full detail for one project (people, kits, hypotheses)
-- `manage_project` — create / update / delete a project (delete is destructive)
+Read-only analysis does not authorize creating studies, recalculating data,
+changing people/families, or deleting evidence. If the user has already
+requested a specific POI experiment or recalculation, carry it out within that
+scope without another permission loop. Honor the tool's confirmation contract
+(e.g. `confirmed: true` only for an already authorized action). Otherwise
+obtain the missing authorization for that concrete mutation. Check the action,
+not just a `manage_` prefix: some such tools also have read actions.
 
-## Individuals & Families
+Source-tree edits assert genealogy. Hypothetical ghost-tree/POI edits are
+research mutations with different effects. Neither licenses the other. Keep
+sensitive evidence within the authorized workspace; public examples use
+wholly fictional families, not renamed real data. Authentication belongs to
+the connector; never request or reproduce credentials in a research report.
 
-- `list_individuals` — paginated list within a project (supports gender filter)
-- `search_individuals` — fuzzy name search (supports "Smith 1850")
-- `get_relationship` — explicit relationship between two individuals
-- `get_ancestors` — pedigree traversal
-- `manage_individual` — create / update / delete people, with parent assignment (destructive on delete)
-- `manage_family` — create / update / delete marriages, add children
-- `get_eligible_parents` — candidate parents for a given individual
+## Discover people, kits, and descent paths
 
-## DNA Kits & Segments
+- `search_individuals`, `list_individuals`, `get_individual` — resolve people
+  and stored details. Preserve date precision and original date text.
+- `list_dna_kits` — map kits to people, provider, and compute state. Include
+  unlinked kits in the inventory's limitations rather than silently dropping
+  them. `list_available_pois` supplies eligible people and kit short-ids.
+- `get_ancestors`, `get_relationship` — bounded ancestry and known pair paths.
+  Use these to connect relevant tested people to candidate families. A name
+  collision is not identity; a depth-limited search is not exhaustive.
+- `get_project_tree` — tree topology when the authorized project fits its
+  response limit. For larger trees, inventory kits and walk their relevant
+  ancestry in bounded steps; do not invent a general descendant tool.
+- `get_poi_project`, `get_poi_ancestry`, `get_participants` — inspect existing
+  study membership, tree context, and participants. People may own several
+  kits. Preserve both paths of a multiply related person, counting them once.
 
-- `list_dna_kits` — kits with provider, status, triangulation counts
-- `manage_dna_kit` — get details, reassign, or delete a kit (destructive on delete)
-- `list_dna_segment_references` — individuals with imported segments
-- `get_dna_segment_detail` — per-individual match breakdown
-- `delete_dna_segments` — destructive
-- `get_segment_import_history` — past imports by provider
-- `get_xdna_analysis` — X-specific analysis (5 actions: analysis, impossible_matches, validations, reachable_ancestors, descendants)
-- `get_kit_triangulations` — three-way segment overlaps touching a kit
+## Choose the evidence surface deliberately
 
-## DnaCheck (pair-level scoring)
+| Tool | Read scope and interpretation |
+|---|---|
+| `get_kit_matches` | Current project-assigned **raw** segments, aggregated for one focal kit and each counterpart kit, sorted by `total_cm`. The checked implementation sums chromosomes together: this is not an autosomal-only total. `is_canonical_match_kit` helps identify duplicate people, but does not certify the pair chosen by a POI scorer. |
+| `list_dna_segment_references`, `get_dna_segment_detail` | **Imported** segment references and per-person imported match breakdowns. Detail takes `individual_id`, not `kit_id`. Provider summaries and row availability may differ. |
+| `get_segment_region_overlaps` | **Imported segments only** in the checked contract. `min_cm` filters whole-segment cM, not overlap length or the POI evidence floor. Empty results do not exclude raw segments in the interval. |
+| `get_kit_triangulations` | Stored engine-computed or provider-imported triads touching one kit. Read `evidence.source`, `method`, `phasing`, `parental_origin`, and X-path metadata where present. Constituent raw pairwise intervals cover eligible triads, not the complete raw pair distribution. |
+| `get_dna_check_pairs` | Autosomal/X totals, counts, largest autosomal segment, source, expected sharing, and fit from an identified DNA-check run. These are stored results, not necessarily today's pair evidence or a POI's filtered evidence. |
+| `get_hypothesis_detail` | Native `scoring.components`, `participant_fits`, and stored triangulation support. `observed_cm` is filtered autosomal evidence; `shared_cm_with_poi` in `get_participants` is unfiltered. Read `applicable`, `evidence_source`, and the actual common ancestor used for each fit. |
 
-- `run_dna_check` — heavy compute; computes pairwise relationship scoring (prerequisite for the pair tools below)
-- `get_dna_check_summary` — high-level results
-- `get_dna_check_pairs` — pair-level findings, **ordered by z-score** (deviation from expected sharing), with an optional `individual_id` filter
-- `get_dna_check_anomalies` — flagged anomalies
-- `review_dna_check_pair` — write back curator notes
-- `get_anomalies` — non-pair-specific anomalies
-- `manage_pair_overrides` — manual override of pair scoring
+Follow pagination and declared caps. Do not describe one page as the full
+cohort, distribution, or globally highest matches after a local sort. Do not
+sum both directions of a segment, several kits from one person, or raw plus
+imported observations of the same evidence. Native selection may use a POI kit
+pin and a processed-pair fallback different from the match list's canonical
+kit. If that selected pair is not exposed, record it as unknown rather than
+claiming the two surfaces reconcile.
 
-## Hypothesis Engine (ghost trees, scoring, paths)
+Interpret evidence states explicitly:
 
-- `check_hypothesis_readiness` — validate prerequisites before generation
-- `generate_hypotheses` — runs the hypothesis pipeline; creates ghost branches and auto-clears existing ones (heavy; requires a POI project)
-- `list_hypotheses` — generated hypotheses sorted by score
-- `get_hypothesis_detail` — single hypothesis evidence paths
-- `rescore_hypotheses` — re-run scoring with updated overrides / anchors
-- `get_evidence_paths` — paths supporting a hypothesis
-- `get_evidence_gaps` — paths missing data
-- `get_ghost_tree` — synthetic anchor tree
-- `clear_ghost_hypotheses` / `clear_composite_hypothesis` — destructive
-- `manage_hypothesis_endpoint` — manage a hypothesis endpoint
+- `not_compared` / missing / `evidence_source: none`: no usable measurement
+  established; a numeric placeholder does not turn it into a measured zero.
+- `processed_zero`: a measured zero under that comparison's retained scope,
+  not proof of no genealogical relationship.
+- Below-filter evidence: measurement exists but nothing passes the stated
+  filter; distinguish this from uncomputed data. If provenance is insufficient
+  to tell, say so.
+- X-only: autosomal zero can coexist with X sharing; inspect both components.
+- Empty imported read: no rows in that imported scope, with raw evidence still
+  unknown. A shared-match row alone is not positive DNA evidence; inspect the
+  underlying measurements and currency.
 
-## POI Projects (Point-of-Interest research projects)
+## Native calculations and result currency
 
-- `list_poi_projects` / `create_poi_project` / `duplicate_poi_project` / `update_poi_project` / `delete_poi_project`
-- `get_poi_project` / `get_poi_project_analysis`
-- `get_poi_ancestry` — POI's ancestry trace
-- `get_participants` — participant list
-- `manage_blocked_anchors` — block / unblock anchor families
-- `list_composite_hypotheses` / `materialize_composite_hypothesis` — composite POI work
-- `toggle_scenario_ignore` — scenario-level filtering
-- `manage_ghost_family` / `manage_ghost_individual` — synthetic tree edits
+`get_dna_check_summary` and `list_dna_check_runs` establish available check
+results. `run_dna_check` scores existing DNA evidence against the tree; it is
+not the raw IBD detector and does not fill missing raw comparisons. Start or
+refresh it only within authorized compute scope.
 
-`create_poi_project` takes a `project_uuid` plus a `pois` array of
-`{individual_id, dna_kit_id?}` entries. It does **not** require an anchor
-couple or family; `participant_ids` is optional and auto-resolves to all
-DNA-connected individuals when omitted.
+`get_dna_check_pairs` is ordered by z-score, with optional `individual_id`
+filter. Retain `run.id` and each row's `dna_check_run_id`; compare run identity
+across pages. If a new run replaces results during pagination, restart at
+page 1 as directed by the tool. Do not join an old largest segment to a new
+raw total as if they were one observation.
 
-## Validation
+For native hypothesis work:
 
-- `get_validation_candidates` — pairs with known relationships + DNA, for ground-truth validation work
+1. Read `list_poi_projects` and the selected study's detail/analysis,
+   participants, evidence gaps, stale flags, and current schemas. The
+   `get_poi_project_analysis.sections` and `get_hypothesis_detail.sections`
+   enums constrain available projections; requesting an absent section can
+   return an omitted section, not a negative finding.
+2. Within authorization, `create_poi_project` takes `project_uuid` and
+   `pois: [{individual_id, dna_kit_id?}, ...]`; no anchor is required.
+   `participant_ids` identifies people and defaults to auto-resolution of
+   DNA-connected individuals when omitted. Read the resolved selection back.
+3. `check_hypothesis_readiness` precedes `generate_hypotheses`. Generation
+   creates/replaces ghost hypotheses and can clear prior branches. Reuse
+   existing fresh results when the request is inspection only.
+4. `list_hypotheses` and `get_hypothesis_detail` expose candidates and native
+   support. Inspect `scoring.components` and participant fits; `via_mrca`
+   means the fit can use a different common ancestor than the scenario's
+   anchor. `triangulation_trace` is an optional heavier diagnostic; agreement
+   with stored aggregates does not verify historical provenance. Its
+   `cross_validation_score` reuses pair cM, not held-out validation.
+5. `list_composite_hypotheses` combines related POIs; inspect the returned
+   search limits and known-relationship compatibility. Increasing `top_n`
+   changes the number returned, not necessarily candidate search depth.
+   `get_ghost_tree` supplies topology; materialization is a separate mutation.
+6. `compare_hypotheses` compares native support within one POI study.
+   `rescore_hypotheses` recalculates within authorized scope. Read back
+   results and settings after mutations instead of trusting an old rank.
 
-## Research
+The backend owns calculations for both frontend and MCP. Compare the same
+scenario, POI, evidence, and scoring context. `rank` is the per-POI scoring
+rank; ghost-tree `display_rank` is a couple-grouped presentation position and
+can differ. Composites can have no persisted scoring rank. `scoring_run_id`
+on ghost-tree/scenario reads names the project's latest scoring run, not
+necessarily each scenario's provenance after a single-POI rescore. Equal IDs
+show no intervening scoring pass, not that every result shares one snapshot.
 
-- `get_research_prompts` — canned research prompts curated by the platform
+`relationship_probabilities` is a native cM-based alternative comparison,
+not the tree-aware POI engine. Its checked schema says `largest_segment_cm`
+is advisory and unused in scoring. Do not infer a length weight from a
+returned largest-segment field. Native `good`, likelihood, probability, and
+rank remain conditional model outputs; do not add custom bonuses or compare
+probabilities across different cohorts/candidate sets as the same quantity.
 
-## When to call which
+## Capability limits
 
-- **Always start with**: `list_projects` to see what is available, then
-  `get_project` for the active project to load context.
-- **Match analysis**: `list_dna_kits` → `run_dna_check` (prerequisite if not
-  yet run) → `get_dna_check_summary` → `get_dna_check_pairs`. Remember
-  `get_dna_check_pairs` is ordered by z-score, not by raw shared cM — re-sort
-  the returned pairs if the user asked for "top matches by cM".
-- **Hypothesis exploration**: `list_poi_projects` (or `create_poi_project`) →
-  `check_hypothesis_readiness` → `generate_hypotheses` → `list_hypotheses` →
-  `get_hypothesis_detail` → `get_evidence_paths` for ranked, evidence-backed
-  leads.
-- **Triangulation work**: `get_kit_triangulations` for a specific kit's
-  triangulated segments.
-- **Tree expansion**: `get_eligible_parents` when the user is filling in
-  missing parents and you want Kinprove's candidate suggestions.
+The live schemas and response implementations checked on 2026-09-12 expose
+the source profile, fit variance, and filtered fit totals. They do **not**
+provide a complete effective-filter/scoring-snapshot record, a complete raw
+pair segment distribution with selected-pair provenance, or a POI-local
+minimum-segment parameter on `update_poi_project`. Do not manufacture those
+fields. Rediscover the deployment's current schemas: use added capabilities
+if actually exposed, otherwise report the specific unknowns.
 
-## Destructive tools
+A largest segment from a DNA-check run, imported region rows, or constituent
+segments of a stored triad cannot fill these gaps for every current raw pair.
+Use a narrowly scoped native export or authorized application read when one
+is available; otherwise stop that inference, retaining the useful tree and
+native-score analysis. Do not request broad raw exports or treat missing
+filter metadata as the default threshold.
 
-Tools with `delete_`, `clear_`, or `manage_` in the name can modify or destroy
-user data (`manage_*` tools delete on the delete action). **Always confirm with
-the user before invoking these.** Summarize what the tool will do, what scope of
-data is affected, and wait for explicit approval.
+## Preserve the original during experiments
 
-## Authentication
+Use `duplicate_poi_project` for an authorized sandbox copy. It copies POI
+research data; it does not create an independently filtered source project.
+`update_poi_project.pois` rebuilds tree and hypotheses; `participant_ids`
+replaces the entire selection and regenerates hypotheses. The schema also
+supports bounded `add_participant_ids` / `remove_participant_ids` deltas.
+Read back the copy and its resulting cohort before comparing native support.
 
-The connector handles auth via OAuth 2.1 — you do not see tokens. The connector
-enforces per-user data isolation, so you can only ever see the connected user's
-projects. Cross-user access is impossible at the API layer.
+`manage_pair_overrides` is a mutation: `zero_match` asserts user-confirmed
+zero evidence, while `ignored` removes an otherwise non-positive pair's
+weight. Neither is a substitute for an uncomputed comparison; do not add an
+override just to make a missing pair look measured. Positive evidence takes
+precedence. Source-tree changes, kit reassignment, clearing, deletion, and
+composite materialization each need authorization for their actual scope.
 
 ## Related
 
-- [SKILL.md](../SKILL.md) — the skill body that references this catalog
-- [examples/workflows.md](../examples/workflows.md) — worked workflows that call these tools
-- [mrca-estimation.md](mrca-estimation.md) — uses the hypothesis-engine tools
+- [SKILL.md](../SKILL.md) — working method and concise hand-off
+- [Workflows](../examples/workflows.md) — tool sequences and fictional examples
+- [Endogamy](endogamy.md) — filtering, related testers, and sensitivity experiments
+- [Triangulation](triangulation.md) — interval evidence and attribution limits
