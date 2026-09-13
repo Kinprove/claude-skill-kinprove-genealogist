@@ -45,10 +45,14 @@ branch.” Keep the full grouping table optional.
    establish a phased shared haplotype or name an MRCA.
 2. Inspect an existing suitable POI study and its currency. For an authorized
    new study, `create_poi_project` takes `project_uuid` and a `pois` array;
-   it requires no anchor couple. Read the resolved participants back.
-3. If generation is authorized, `check_hypothesis_readiness` precedes
-   `generate_hypotheses`; generation replaces existing ghost work. Otherwise
-   inspect the stored candidates without changing them.
+   it requires no anchor couple. Read the resolved participants and creation
+   outcome back. Successful initial generation returns
+   `next_action: rescore_hypotheses`; perform that authorized scoring step
+   instead of regenerating the new branches.
+3. For missing initial branches or a required authorized topology rebuild,
+   resolve any reported generation failure and run `check_hypothesis_readiness`
+   before `generate_hypotheses`; generation replaces existing ghost work.
+   Reuse fresh stored candidates when no rebuild is needed.
 4. Read `list_hypotheses`, `get_hypothesis_detail`, and the relevant evidence
    paths. Compare native expected sharing with observed filtered evidence,
    actual common-ancestor paths, dates, and missing records. Check related
@@ -121,7 +125,13 @@ not assert that the fictional data are present in a connected project.
    `create_poi_project.pois: [{individual_id, dna_kit_id?}, ...]` when creating
    it, or the existing study when suitable. Read back actual participants;
    automatic selection does not guarantee the complete family inventory.
-   Run `check_hypothesis_readiness` before authorized `generate_hypotheses`.
+   On creation, inspect `generation.status` and `next_action`: successful
+   initial generation requires authorized `rescore_hypotheses`, not another
+   generation. If initial generation failed or produced no branches, retain
+   the persisted study, resolve the reported cause, and check readiness
+   before a necessary authorized generation. For a reused study, preserve
+   fresh results; rebuild topology only when required and authorized. See
+   the [native lifecycle](../references/kinprove-connector-tools.md#native-calculations-and-result-currency).
 6. Read each POI's `list_hypotheses` / `get_hypothesis_detail`, then
    `list_composite_hypotheses`. Inspect components, applicable fits, actual
    MRCA paths, and treatment of multiple paths. Check the returned topology

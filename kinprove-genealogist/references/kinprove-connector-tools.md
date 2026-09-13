@@ -143,9 +143,19 @@ For native hypothesis work:
    `pois: [{individual_id, dna_kit_id?}, ...]`; no anchor is required.
    `participant_ids` identifies people and defaults to auto-resolution of
    DNA-connected individuals when omitted. Read the resolved selection back.
-3. `check_hypothesis_readiness` precedes `generate_hypotheses`. Generation
-   creates/replaces ghost hypotheses and can clear prior branches. Reuse
-   existing fresh results when the request is inspection only.
+   Creation also attempts initial branch generation: inspect
+   `project_persisted`, `generation.status`, its reason/error, and
+   `next_action`. Successful creation-time generation points to
+   `rescore_hypotheses` because those branches are not yet scored. Follow that
+   action within authorization instead of generating the same branches again.
+   A persisted study with failed or empty generation is not a failed create;
+   use its returned UUID and resolve the reported cause rather than creating
+   another study.
+3. Generate only when initial branches still need generating or an authorized
+   topology rebuild is required. `check_hypothesis_readiness` precedes that
+   `generate_hypotheses` call. Generation creates/replaces ghost hypotheses
+   and can clear prior branches. Inspect its outcome and scoring currency;
+   reuse existing fresh results when the request is inspection only.
 4. `list_hypotheses` and `get_hypothesis_detail` expose candidates and native
    support. Inspect `scoring.components` and participant fits; `via_mrca`
    means the fit can use a different common ancestor than the scenario's
