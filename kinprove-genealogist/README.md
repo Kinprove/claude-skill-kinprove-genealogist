@@ -4,11 +4,17 @@ A Claude Skill that turns Claude into a Kinprove-aware genealogy research partne
 
 ## What it does
 
-- Activates whenever you ask Claude about DNA matches, triangulation, family-tree hypotheses, or genealogy research
-- Uses reasoning patterns specific to genetic genealogy (cM ranges, MRCA estimation, X-DNA rules, endogamous family comparisons)
-- Ships worked example workflows in `examples/` (grouping a project's matches by ancestor, MRCA estimation, unexpected-close-match triage, related-POI family comparisons, missing-evidence handling)
+- Helps with DNA matches, triangulation, and family hypotheses in Kinprove projects
+- Explains native calculations, selected kits, effective filters, and the limits of stored results
+- Ships Kinprove workflows in `examples/`, including related-POI family comparisons and missing-evidence handling
 - When paired with the Kinprove MCP connector, reads your actual matches/projects/trees instead of asking you to paste data
-- Works standalone without the connector — give it pasted notes/CSVs and it reasons from those
+- Works from Kinprove exports and study notes without the connector, while identifying unavailable native calculations
+
+The general DNA research methods, family-comparison recipe, and fictional
+teaching case are maintained in [DNA Research Recipes](https://github.com/Kinprove/dna-research-recipes/blob/253195738dc9d2d0722b1520d75a37f150ae9a3e/dna-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations).
+That catalog works across platforms and requires no Kinprove account. This
+skill explains how to apply the method through Kinprove; the catalog does not
+need to be installed as another skill.
 
 ## Install
 

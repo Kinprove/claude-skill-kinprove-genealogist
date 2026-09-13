@@ -49,6 +49,7 @@ the connector; never request or reproduce credentials in a research report.
 
 | Tool | Read scope and interpretation |
 |---|---|
+| `get_pair_segment_evidence` | Current raw and imported evidence for two people, native selected kit pair, effective autosomal filter, counted/excluded rows, and complete distribution summaries. Optional POI scope applies that study's kit pins and pair overrides. Segment rows may be paginated/capped; this is a live extraction, not a stored scoring snapshot. See the detailed contract below. |
 | `get_kit_matches` | Current project-assigned **raw** segments, aggregated for one focal kit and each counterpart kit, sorted by `total_cm`. The checked implementation sums chromosomes together: this is not an autosomal-only total. `is_canonical_match_kit` helps identify duplicate people, but does not certify the pair chosen by a POI scorer. |
 | `list_dna_segment_references`, `get_dna_segment_detail` | **Imported** segment references and per-person imported match breakdowns. Detail takes `individual_id`, not `kit_id`. Provider summaries and row availability may differ. |
 | `get_segment_region_overlaps` | **Imported segments only** in the checked contract. `min_cm` filters whole-segment cM, not overlap length or the POI evidence floor. Empty results do not exclude raw segments in the interval. |
@@ -77,6 +78,46 @@ Interpret evidence states explicitly:
 - Empty imported read: no rows in that imported scope, with raw evidence still
   unknown. A shared-match row alone is not positive DNA evidence; inspect the
   underlying measurements and currency.
+
+## Current pair segment evidence
+
+Where the deployment exposes `get_pair_segment_evidence`, pass
+`project_uuid`, `individual_uuid`, and `match_individual_uuid`. These identify
+two distinct people in the source project. `individual_uuid` is the focal
+side and wins precedence ties; keep that orientation consistent. Adding
+`poi_project_uuid` requires that focal person to be a scoped POI of that
+study and applies the study's kit pins, local filter, and pair-override
+overlay. Omitting it uses project scope without those POI overrides.
+
+Read these fields together:
+
+- `kit_selection`: the selected pair, pins, and considered kit candidates.
+  `segments` can include rows from other considered pairs marked
+  `not_selected_kit_pair`; those are not extra scored observations. Raw
+  precedence can also leave imports marked `superseded_by_raw`.
+- `effective_filters`: applied `min_segment_cm`, project baseline,
+  `min_segment_cm_scope`, and chromosome scope. The floor filters autosomal
+  evidence; X is reported separately and is not used in the autosomal fit.
+- `evidence`: the native effective summary and its source. Check
+  `pair_override.type` / `applied` where present; an applied user override is
+  not detector evidence. Rows and distribution describe the extraction
+  before that overlay, so do not replace the effective summary with a sum.
+- `distribution`: separate buckets for counted autosomes, X, below-floor
+  rows, superseded imports, and unselected raw kit pairs. Its
+  `summary_scope: complete` covers the extraction, even when the segment list
+  is incomplete. Empty buckets have zero count and null summary lengths;
+  use the evidence source to distinguish missing from measured-zero data.
+- `segments_scope`: `complete`, `capped`, or `page`. When individual lengths
+  or intervals are needed, use `page` / `per_page` and follow `has_more` to
+  completion. A complete summary does not make a capped list complete.
+  Null row `genome_build` means the coordinate build is unestablished for
+  that row; do not infer it from a different kit or imported view.
+- `basis: current_data_and_settings` and `context`: in POI mode, inspect
+  `participant_in_scoring_set`, `latest_scoring_run_id`, and stale fields.
+  A readable pair need not participate in the study's score. Retain the read
+  time; pagination is not an immutable run export, so re-read if data/settings
+  change during collection. A current extraction does not certify what an
+  older hypothesis run consumed.
 
 ## Native calculations and result currency
 
@@ -136,20 +177,27 @@ probabilities across different cohorts/candidate sets as the same quantity.
 
 ## Capability limits
 
-The live schemas and response implementations checked on 2026-09-12 expose
-the source profile, fit variance, and filtered fit totals. They do **not**
-provide a complete effective-filter/scoring-snapshot record, a complete raw
-pair segment distribution with selected-pair provenance, or a POI-local
-minimum-segment parameter on `update_poi_project`. Do not manufacture those
-fields. Rediscover the deployment's current schemas: use added capabilities
-if actually exposed, otherwise report the specific unknowns.
+The maintained implementation checked on 2026-09-13 includes the pair-evidence
+tool above, `effective_scoring_settings` and `scoring_settings_at_generation`
+on `get_poi_project` and the `project` section of `get_poi_project_analysis`,
+and optional `evidence_min_segment_cm` on
+`create_poi_project` / `update_poi_project`. Settings changes can add a
+`settings` stale reason. Discover the connected deployment's actual schemas
+and returned fields before relying on them; a repository capability is not
+proof that every server has deployed it.
 
-A largest segment from a DNA-check run, imported region rows, or constituent
-segments of a stored triad cannot fill these gaps for every current raw pair.
-Use a narrowly scoped native export or authorized application read when one
-is available; otherwise stop that inference, retaining the useful tree and
-native-score analysis. Do not request broad raw exports or treat missing
-filter metadata as the default threshold.
+Read the [endogamy settings contract](endogamy.md#keep-the-settings-scopes-separate)
+for scope/source fields and recorded settings. These expose current values
+and a limited scoring-settings record, not a complete historical detector,
+input, or model snapshot. Null or mixed recorded settings remain a provenance
+limit; a current pair read cannot reconstruct missing run history.
+
+On older connections without these capabilities, a largest segment from a
+DNA-check run, imported region rows, or stored triad intervals cannot fill the
+gaps for every current raw pair. Use a narrowly scoped native export or
+authorized application read when available; otherwise retain the specific
+unknowns and useful tree/native-score analysis. Do not request broad raw
+exports or treat missing filter metadata as the default threshold.
 
 ## Preserve the original during experiments
 

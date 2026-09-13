@@ -1,12 +1,17 @@
 ---
 name: kinprove-genealogist
-description: Genealogy research partner for Kinprove users. Analyze DNA matches, segment evidence, endogamous pedigrees, and family-to-family hypotheses with related POIs and tested descendants. Use the connected Kinprove tools for native calculations, tree paths, and scoring; without the connector, reason from user-provided exports and notes while stating missing capabilities.
+description: Guides investigations of DNA matches and family-to-family hypotheses in Kinprove projects. Use for Kinprove MCP tools, POI studies, native scoring, and Kinprove exports or study notes. Resolves evidence scopes, selected kits, effective filters, related POIs, and result currency; identifies unavailable native calculations when the connector is absent.
 ---
 
 # Kinprove Genealogist
 
-Help genealogists investigate DNA matches and family trees. Keep documented
-relationships, research leads, and native model results distinct.
+Apply genealogy research methods to Kinprove projects and study exports. Keep
+documented relationships, research leads, and native model results distinct.
+The platform-independent family-comparison method and teaching fixture live
+in [DNA Research Recipes](https://github.com/Kinprove/dna-research-recipes/blob/253195738dc9d2d0722b1520d75a37f150ae9a3e/dna-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations).
+This package owns their application through Kinprove. No companion skill
+installation is required; if the linked text is inaccessible, use the user's
+evidence and these local constraints without inventing the fixture's contents.
 
 ## Working method
 
@@ -20,20 +25,21 @@ relationships, research leads, and native model results distinct.
    selected kit pair, source, autosomal total/count/largest segment, available
    length distribution, filters, and result currency. Keep X separate. An
    imported-only empty result, an uncomputed pair, and a measured zero are
-   different states. Missing metadata remains unknown.
+   different states. Prefer `get_pair_segment_evidence` when exposed, using
+   the POI study's scope for scoring comparisons. Missing metadata remains
+   unknown; a current evidence read is not a stored scoring snapshot.
 3. **For endogamy, read [endogamy.md](references/endogamy.md) first.** Source
    project filtering and POI scoring settings have separate scopes. Turning on
-   POI endogamy does not establish a higher segment floor. Short-only sharing
-   can be compatible with background sharing without quantifying endogamy or
-   excluding a real distant connection. Do not shift every relationship one
-   category outward or impose a universal generation limit.
+   POI endogamy does not establish a higher hypothesis-evidence floor. Read
+   effective settings and their recorded scoring values where exposed; do
+   not infer them from a label or substitute the recipe's research filters.
 4. **Research families, including their tested relatives.** Discover relevant
    tested descendants and related POIs, record all descent paths, and use the
    native multi-POI workflow. Multiple kits are not multiple people, and
    overlapping branches are not independent evidence. Preserve native
    multipath calculations; inspect whether returned composite placements
    respect the known relationships. Follow the
-   [worked family comparison](examples/workflows.md#workflow-4--compare-two-families-under-endogamy).
+   [Kinprove family workflow](examples/workflows.md#workflow-4--compare-two-families-under-endogamy).
 5. **Use native calculations and inspect their components.** A long segment
    may deserve research attention without earning a native score bonus.
    Check the scorer's actual contract; never add a homemade weight or
@@ -64,10 +70,10 @@ within the authorized connection.
 
 - [Connector guide](references/kinprove-connector-tools.md) — live discovery,
   native analysis, mutations, and evidence-source limits
-- [Endogamy](references/endogamy.md) — settings, segment profiles, related
-  testers, and controlled comparisons
+- [Endogamy](references/endogamy.md) — effective settings, native support,
+  and controlled POI comparisons
 - [Workflows](examples/workflows.md) — match grouping, MRCA work, close
-  matches, a fictional family study, and an incomplete-evidence case
+  matches, application of the common family recipe, and older-connector fallback
 - [MRCA estimation](references/mrca-estimation.md) and
   [cM ranges](references/cm-ranges.md) — relationship possibilities and depths
 - [Triangulation](references/triangulation.md) and
