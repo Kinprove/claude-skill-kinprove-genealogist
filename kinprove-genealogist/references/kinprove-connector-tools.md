@@ -210,8 +210,7 @@ and optional `evidence_min_segment_cm` on
 evidence and to scored autosomal triangulation
 (`scored_triangulation_min_segment_cm`), while X has a separate per-segment
 product floor; see [X inheritance](x-dna-inheritance.md#kinprove-platform-behavior).
-It also exposes
-`scoring_preset: "endogamous"` on both tools and
+It also exposes `scoring_preset: "endogamous"` on both tools and
 `effective_scoring_settings.endogamous_preset`; see
 [the endogamy reference](endogamy.md#keep-the-settings-scopes-separate).
 Settings changes, and scores computed under an older scoring model, can add a

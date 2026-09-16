@@ -157,8 +157,9 @@ not assert that the fictional data are present in a connected project.
 **Without the connector:** apply the common case or the user's actual study
 exports. Supplied native ranks and components remain usable as recorded
 outputs at their stated provenance; fresh native calculations and any
-unprovided composite validation remain unavailable. If the external case cannot be read, do not
-reconstruct its missing measurements from names or this tool sequence.
+unprovided composite validation remain unavailable. If the external case
+cannot be read, do not reconstruct its missing measurements from names or
+this tool sequence.
 
 **Hand-off:** give the research lead and uncertainty from the actual evidence,
 then add the Kinprove study's material limitation: for example, a stale score,

@@ -26,9 +26,9 @@ provider provenance and may have unknown phasing. Read the `evidence` block
 and coordinate `build`. Do not upgrade either type to phased evidence.
 
 Pairwise rows attached to a computed triad are a scoped evidence view, not
-a complete segment inventory for each pair. Provider-imported triads and imported pair
-rows also have distinct availability. An empty triad result does not mean
-there are no pairwise segments or no genealogical relationship.
+a complete segment inventory for each pair. Provider-imported triads and
+imported pair rows also have distinct availability. An empty triad result
+does not mean there are no pairwise segments or no genealogical relationship.
 
 ### Computed span and kit scope
 
