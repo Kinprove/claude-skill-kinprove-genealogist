@@ -40,9 +40,21 @@ Read the current connector schemas and evidence source:
   rather than treating all X results as a universal bonus or exclusion.
 
 Detector, import, triangulation, and scoring significance thresholds are
-separate settings. Establish the applicable effective value where exposed.
-A POI `endogamy_mode` flag does not establish an increased X threshold. If a
-cutoff is unavailable, say so instead of supplying a universal 10/15 cM rule.
+separate settings. The maintained product counts a stored X segment only
+when its individual length is **at least 10.00 cM**, at stored two-decimal
+precision. For example, 14 + 9 + 7 cM contributes one segment of 14 cM;
+9 + 7 cM contributes no qualifying X evidence. A stored 9.99 cM remains
+excluded even if rounded to 10.0 in the display.
+
+Sub-floor rows remain listed as diagnostics, marked `below_x_evidence_floor`;
+they do not enter X totals, counts, match membership, or hypothesis evidence.
+`get_pair_segment_evidence` exposes `effective_filters.x_segment_floor_cm`
+and `distribution.x_below_evidence_floor`. This product rule is separate from
+the detector's seed threshold, an imported-triad floor, and an X-path check's
+gate on summed evidence. A POI `endogamy_mode` flag does not establish those
+values. Read the connected deployment's actual fields; on an older export
+without the cutoff, keep it unknown instead of retroactively claiming that
+10 cM was applied. The product cutoff is not a universal biological rule.
 
 ## Hand-off
 

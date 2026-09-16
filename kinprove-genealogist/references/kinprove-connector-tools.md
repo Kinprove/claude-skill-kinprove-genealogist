@@ -55,7 +55,7 @@ the connector; never request or reproduce credentials in a research report.
 | `get_segment_region_overlaps` | **Imported segments only** in the checked contract. `min_cm` filters whole-segment cM, not overlap length or the POI evidence floor. Empty results do not exclude raw segments in the interval. |
 | `get_kit_triangulations` | Stored engine-computed or provider-imported triads touching one kit. Read `evidence.source`, `method`, `phasing`, `parental_origin`, and X-path metadata where present. Constituent raw pairwise intervals cover eligible triads, not the complete raw pair distribution. |
 | `get_dna_check_pairs` | Autosomal/X totals, counts, largest autosomal segment, source, expected sharing, and fit from an identified DNA-check run. These are stored results, not necessarily today's pair evidence or a POI's filtered evidence. |
-| `get_hypothesis_detail` | Native `scoring.components`, `participant_fits`, and stored triangulation support. `observed_cm` is filtered autosomal evidence; `shared_cm_with_poi` in `get_participants` is unfiltered. Read `applicable`, `evidence_source`, and the actual common ancestor used for each fit. |
+| `get_hypothesis_detail` | Native `scoring.components`, `participant_fits`, and stored triangulation support. `observed_cm` is filtered autosomal evidence; `shared_cm_with_poi` in `get_participants` is unfiltered. Read `applicable`, `evidence_source`, and the actual common ancestor used for each fit. For a multipath fit, `multipath_calculation` shows counted/zero-weight routes and consanguinity steps behind `expected_cm`. A null trace can mean no multipath calculation was applied or an older snapshot; neither establishes a single-route pedigree. Read `scoring_run_id` / `hypotheses_stale` and apply the [path and anchor checks](endogamy.md#check-which-pedigree-paths-were-scored). |
 
 Follow pagination and declared caps. Do not describe one page as the full
 cohort, distribution, or globally highest matches after a local sort. Do not
@@ -98,12 +98,17 @@ Read these fields together:
 - `effective_filters`: applied `min_segment_cm`, project baseline,
   `min_segment_cm_scope`, and chromosome scope. The floor filters autosomal
   evidence; X is reported separately and is not used in the autosomal fit.
+  `x_segment_floor_cm` is the separate product floor on each X segment
+  (10.00 cM in the maintained implementation), not on their sum. A shorter
+  row is listed with `exclusion_reason: below_x_evidence_floor` and is not
+  counted even alongside a qualifying X segment.
 - `evidence`: the native effective summary and its source. Check
   `pair_override.type` / `applied` where present; an applied user override is
   not detector evidence. Rows and distribution describe the extraction
   before that overlay, so do not replace the effective summary with a sum.
 - `distribution`: separate buckets for counted autosomes, X, below-floor
-  rows, superseded imports, and unselected raw kit pairs. Its
+  autosomes, `x_below_evidence_floor`, superseded imports, and unselected raw
+  kit pairs. Its
   `summary_scope: complete` covers the extraction, even when the segment list
   is incomplete. Empty buckets have zero count and null summary lengths;
   use the evidence source to distinguish missing from measured-zero data.
@@ -160,8 +165,9 @@ For native hypothesis work:
    support. Inspect `scoring.components` and participant fits; `via_mrca`
    means the fit can use a different common ancestor than the scenario's
    anchor. `triangulation_trace` is an optional heavier diagnostic; agreement
-   with stored aggregates does not verify historical provenance. Its
-   `cross_validation_score` reuses pair cM, not held-out validation.
+   with stored aggregates does not verify historical provenance. Only a row
+   whose triad contains the POI scores; its `support_score` counts merged
+   POI-containing regions only — pairwise cM is not additional support.
 5. `list_composite_hypotheses` combines related POIs; inspect the returned
    search limits and known-relationship compatibility. Increasing `top_n`
    changes the number returned, not necessarily candidate search depth.
@@ -185,16 +191,32 @@ returned largest-segment field. Native `good`, likelihood, probability, and
 rank remain conditional model outputs; do not add custom bonuses or compare
 probabilities across different cohorts/candidate sets as the same quantity.
 
+Before comparing placements, read `scoring.cohort` and `scoring.coverage` on
+each scenario. A placement that connects more selected participants gains
+`participant_bonus` for each of them, even at 0 cM, and its `avg_likelihood`
+covers different people, so a raw-score or probability gap between scenarios
+with different `connected` counts is not DNA-only support.
+`compare_hypotheses` lists such pairs in `coverage_driven_orderings`; list,
+analysis and proof reads mark a POI leader with `leads_only_by_coverage`.
+Unconnected participants stay visible with `cohort_role` and `observation`.
+
 ## Capability limits
 
-The maintained implementation checked on 2026-09-13 includes the pair-evidence
+The maintained implementation checked on 2026-09-16 includes the pair-evidence
 tool above, `effective_scoring_settings` and `scoring_settings_at_generation`
 on `get_poi_project` and the `project` section of `get_poi_project_analysis`,
 and optional `evidence_min_segment_cm` on
-`create_poi_project` / `update_poi_project`. Settings changes can add a
-`settings` stale reason. Discover the connected deployment's actual schemas
-and returned fields before relying on them; a repository capability is not
-proof that every server has deployed it.
+`create_poi_project` / `update_poi_project`. That cutoff applies to pair
+evidence and to scored autosomal triangulation
+(`scored_triangulation_min_segment_cm`), while X has a separate per-segment
+product floor; see [X inheritance](x-dna-inheritance.md#kinprove-platform-behavior).
+It also exposes `scoring_preset: "endogamous"` on both tools and
+`effective_scoring_settings.endogamous_preset`; see
+[the endogamy reference](endogamy.md#keep-the-settings-scopes-separate).
+Settings changes, and scores computed under an older scoring model, can add a
+`settings` stale reason. Discover the connected deployment's actual schemas and
+returned fields before relying on them; a repository capability is not proof
+that every server has deployed it.
 
 Read the [endogamy settings contract](endogamy.md#keep-the-settings-scopes-separate)
 for scope/source fields and recorded settings. These expose current values
@@ -213,10 +235,13 @@ exports or treat missing filter metadata as the default threshold.
 
 Use `duplicate_poi_project` for an authorized sandbox copy. It copies POI
 research data; it does not create an independently filtered source project.
-`update_poi_project.pois` rebuilds tree and hypotheses; `participant_ids`
-replaces the entire selection and regenerates hypotheses. The schema also
-supports bounded `add_participant_ids` / `remove_participant_ids` deltas.
-Read back the copy and its resulting cohort before comparing native support.
+`update_poi_project.pois` and `participant_ids` add the people the change
+needs to the evidence-paths tree and clear stored scores; automatic branches
+are regenerated only when nobody has edited the project's hypothesis tree by
+hand, otherwise hand-made work is kept and `hypothesis_effect` reports
+`preserved`. The schema also supports bounded `add_participant_ids` /
+`remove_participant_ids` deltas. Read back the copy and its resulting cohort
+before comparing native support.
 
 `manage_pair_overrides` is a mutation: `zero_match` asserts user-confirmed
 zero evidence, while `ignored` removes an otherwise non-positive pair's
