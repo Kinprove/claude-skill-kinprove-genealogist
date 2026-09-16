@@ -103,6 +103,9 @@ not assert that the fictional data are present in a connected project.
    Map Ada, Boris, and Celia to the focal POIs; preserve their known family
    links, Irma's older generation, Dana's two paths, and Mara's two kits.
    Record unlinked kits and unavailable family comparisons as coverage gaps.
+   For proposed parentage, state both parent links and full/half relationships,
+   separating documented facts from user-selected premises. Keep a model
+   outside those premises labeled as a sensitivity alternative.
 2. Read `effective_scoring_settings`, recorded scoring settings, and stale
    reasons where exposed. The common case's 7 cM reporting floor is an input
    fact, not a value established by a Kinprove profile or POI flag. Verify
@@ -139,6 +142,11 @@ not assert that the fictional data are present in a connected project.
    `materialize_composite_hypothesis`, use the authorized copy and inspect
    `get_ghost_tree`. Reject inconsistent placements; leave the source family
    intact. No tool output here is supplied or implied by the teaching case.
+   For mixed parental lines, compare the saved paths on both sides with each
+   fit's selected ancestor and multipath trace; a complete tree does not
+   guarantee that every route entered the expectation. Follow the
+   [path and anchor checks](../references/endogamy.md#check-which-pedigree-paths-were-scored)
+   when equivalent pedigrees use different anchor couples.
 7. Apply the common recipe's branch/generation sensitivity checks through
    `duplicate_poi_project`, reading back each cohort and native result. For
    an authorized stricter filter, use the copy's `evidence_min_segment_cm`
@@ -147,8 +155,9 @@ not assert that the fictional data are present in a connected project.
    reflects current data and settings, not necessarily the stored score.
 
 **Without the connector:** apply the common case or the user's actual study
-exports qualitatively. Native ranks, component weights, and composite
-validation remain unavailable. If the external case cannot be read, do not
+exports. Supplied native ranks and components remain usable as recorded
+outputs at their stated provenance; fresh native calculations and any
+unprovided composite validation remain unavailable. If the external case cannot be read, do not
 reconstruct its missing measurements from names or this tool sequence.
 
 **Hand-off:** give the research lead and uncertainty from the actual evidence,
@@ -176,6 +185,30 @@ is not. Do not launch recalculation or invent a cutoff to fill the gap.
 **Hand-off:** “The raw match is recorded, but its current autosomal segment
 profile and scoring filter remain unresolved through this connection. Next,
 obtain the corresponding bounded pair-evidence report.”
+
+## Workflow 6 — Interpret a computed triad's boundaries
+
+**Fictional engine evidence:** reference R has overlapping R–A and R–B
+segments over a 10 Mb candidate. One A–B segment covers 8.4 Mb of it. A second
+accepted candidate nearby is merged with the first; the final stored span
+has only 76% coverage by A–B. Person A owns two kits, and a boundary-setting
+pairwise segment belongs to the kit not named on the stored triad.
+
+1. Establish `evidence.source`, `method`, coordinate build, and the connected
+   engine's rule. Do not apply this fixture's computed rule to an imported
+   provider triad.
+2. Check the candidates against the pre-merge rule where their inputs are
+   available. The first candidate's 84% passes the maintained 80% threshold;
+   76% on the merged span does not by itself demonstrate a defect. Current
+   pairwise rows alone cannot certify the inputs of an older run.
+3. Inspect the kit IDs in all returned `evidence.pairwise_segments`. Do not
+   restrict this triad audit to A's named kit or substitute the selected pair
+   from a POI fit. Several reference views of the same trio are not extra
+   independent evidence.
+
+**Hand-off:** “These boundaries are compatible with the stated engine rule.
+The full stored span is not a demonstrated continuous shared haplotype; its
+historical inputs and transmitting ancestor need separate evidence.”
 
 ## Related
 

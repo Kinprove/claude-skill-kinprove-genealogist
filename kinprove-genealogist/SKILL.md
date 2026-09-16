@@ -36,9 +36,12 @@ evidence and these local constraints without inventing the fixture's contents.
 4. **Research families, including their tested relatives.** Discover relevant
    tested descendants and related POIs, record all descent paths, and use the
    native multi-POI workflow. Multiple kits are not multiple people, and
-   overlapping branches are not independent evidence. Preserve native
-   multipath calculations; inspect whether returned composite placements
-   respect the known relationships. Follow the
+   overlapping branches are not independent evidence. State the intended
+   parent links, full/half relationships, and user-selected premises before
+   modeling; distinguish those premises from documented facts. Read the
+   resulting tree back: a shared mother does not require a shared father.
+   Preserve native calculations while checking which pedigree paths they
+   actually cover and whether placements respect the stated conditions. Follow the
    [Kinprove family workflow](examples/workflows.md#workflow-4--compare-two-families-under-endogamy).
 5. **Use native calculations and inspect their components.** A long segment
    may deserve research attention without earning a native score bonus.
@@ -48,6 +51,9 @@ evidence and these local constraints without inventing the fixture's contents.
    [Shared cM ranges](references/cm-ranges.md) help explain overlapping
    possibilities; cite them when using them, without replacing pedigree-aware
    native estimates with a cM-only guess.
+   For mixed parentage or several descent routes, apply the
+   [path and anchor checks](references/endogamy.md#check-which-pedigree-paths-were-scored)
+   before interpreting a small score advantage.
 6. **Keep segment attribution provisional.** A known cousin, a long segment,
    or an unphased coordinate overlap does not identify the transmitting
    ancestral couple. Use [triangulation evidence](references/triangulation.md)
