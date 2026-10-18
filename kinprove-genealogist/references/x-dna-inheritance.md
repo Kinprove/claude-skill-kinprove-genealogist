@@ -1,8 +1,10 @@
 # X-chromosome inheritance
 
-Keep X-DNA separate from autosomal DNA. Under the usual sex-chromosome
-inheritance model, a male inherits his X from his mother; a female inherits
-one X from each parent. A father transmits his X to daughters, not sons.
+Keep X-DNA separate from autosomal DNA. The inheritance rules here concern
+ordinary 46,XY/46,XX non-PAR X: a male inherits it from his mother; a female
+inherits one copy from each parent. A father transmits that copy to daughters,
+not sons. Identify pseudoautosomal regions against the source genome build
+before applying these paths; PAR can recombine between X and Y.
 
 ## Trace the particular segment's possible paths
 
@@ -38,6 +40,40 @@ Read the current connector schemas and evidence source:
 - The native X-triangulation scoring component is additive-only. Other
   X-path checks have separate meanings; inspect actual native components
   rather than treating all X results as a universal bonus or exclusion.
+
+### Choose the X question before choosing the view
+
+An X-eligible ancestor and the ancestor who transmitted an observed match are
+different questions. For pedigree eligibility, use `get_xdna_analysis` with
+`action: reachable_ancestors` and the focal `individual_id`; `descendants`
+asks the inverse question. These actions describe paths in the project's
+recorded tree, whether or not anyone has a measured X match. A missing parent
+there is an endpoint of that tree view, not proof that the person's ancestry
+ends. Compare another authorized tree or supplied source when it has more
+generations; do not silently join same-named people across trees.
+
+For observed triangulated bands, inspect `get_chromosome_painting` with
+`focal_individual_uuid` and `chromosome: "X"` when the live schema exposes it.
+Read the band's `evidence` method, phasing, parental origin and X-path fields,
+plus `excluded_reason` and the response's `truncated` flag. Its ancestral-couple
+attribution does not itself establish a parental copy or a continuous phased
+haplotype. A painting is reference-scoped; an empty reference view does not
+exclude participant-side or pairwise evidence in another declared surface.
+
+`get_dna_segment_detail` describes imported provider evidence. Absence of X in
+that view does not rule out native raw-kit evidence. The `validations` and
+`impossible_matches` actions of `get_xdna_analysis` read stored analysis
+results; an empty read can mean that the separate analysis has not run. Check
+the available evidence and compute state before calling it a measured negative.
+Starting or refreshing that analysis remains a separate authorized mutation.
+
+An unattributed band (`attributed: false` or no `couple_ref`) leaves the couple
+unresolved; it does not establish the absence of a common ancestor. Returned
+`get_relationship` paths can identify candidate routes to investigate. Even if
+all returned routes pass through one parent, that is conditional on the tree
+and search scope, not measured parent-of-origin. Use an explicit parental-origin
+observation or suitable phasing before claiming that the band came from that
+parent. A graph-service failure makes the path check unavailable, not unrelated.
 
 Detector, import, triangulation, and scoring significance thresholds are
 separate settings. The maintained product counts a stored X segment only

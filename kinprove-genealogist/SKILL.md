@@ -8,7 +8,7 @@ description: Guides investigations of DNA matches and family-to-family hypothese
 Apply genealogy research methods to Kinprove projects and study exports. Keep
 documented relationships, research leads, and native model results distinct.
 The platform-independent family-comparison method and teaching fixture live
-in [DNA Research Recipes](https://github.com/Kinprove/dna-research-recipes/blob/253195738dc9d2d0722b1520d75a37f150ae9a3e/dna-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations).
+in [Genealogy Research Recipes](https://github.com/Kinprove/genealogy-research-recipes/blob/acda2d1930dd5a352ace44b359733605a75f06e9/skills/genealogy-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations).
 This package owns their application through Kinprove. No companion skill
 installation is required; if the linked text is inaccessible, use the user's
 evidence and these local constraints without inventing the fixture's contents.
@@ -60,6 +60,9 @@ evidence and these local constraints without inventing the fixture's contents.
    and [X-inheritance paths](references/x-dna-inheritance.md) at their stated
    strength. A descendant may inherit a shorter tract or none of a relative's
    tract; that alone does not remove their branch from the pedigree.
+   For X questions, distinguish pedigree eligibility from observed bands and
+   parental origin; select the evidence view using the
+   [X-question guide](references/x-dna-inheritance.md#choose-the-x-question-before-choosing-the-view).
 7. **Separate reads, experiments, and genealogy edits.** For authorized
    sensitivity experiments, preserve the original POI and work in copies.
    Changing participants or regenerating hypotheses mutates the study;

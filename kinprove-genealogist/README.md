@@ -11,7 +11,7 @@ A Claude Skill that turns Claude into a Kinprove-aware genealogy research partne
 - Works from Kinprove exports and study notes without the connector, while identifying unavailable native calculations
 
 The general DNA research methods, family-comparison recipe, and fictional
-teaching case are maintained in [DNA Research Recipes](https://github.com/Kinprove/dna-research-recipes/blob/253195738dc9d2d0722b1520d75a37f150ae9a3e/dna-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations).
+teaching case are maintained in [Genealogy Research Recipes](https://github.com/Kinprove/genealogy-research-recipes/blob/acda2d1930dd5a352ace44b359733605a75f06e9/skills/genealogy-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations).
 That catalog works across platforms and requires no Kinprove account. This
 skill explains how to apply the method through Kinprove; the catalog does not
 need to be installed as another skill.

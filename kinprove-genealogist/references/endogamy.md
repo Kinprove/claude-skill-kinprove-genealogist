@@ -1,6 +1,6 @@
 # Endogamy in a Kinprove research study
 
-Use the [general family-comparison recipe](https://github.com/Kinprove/dna-research-recipes/blob/253195738dc9d2d0722b1520d75a37f150ae9a3e/dna-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations)
+Use the [general family-comparison recipe](https://github.com/Kinprove/genealogy-research-recipes/blob/acda2d1930dd5a352ace44b359733605a75f06e9/skills/genealogy-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations)
 for the method, evidence caveats, and fictional teaching case. This reference
 maps that work to Kinprove settings and native results. The recipe's research
 filters are not Kinprove defaults, a scoring formula, or corrected odds.
