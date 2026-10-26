@@ -34,7 +34,11 @@ Reference for predicting relationships from shared autosomal centimorgans.
 Use the native expected distributions and multipath adjustments exposed for
 the actual study. Distinguish this published population table from the
 scorer's expected interval and filtered observations. A filtered research sum
-is not a corrected input for ordinary relationship odds. See the
+is not a corrected input for ordinary relationship odds. Kinprove's
+`relationship_probabilities` tool and its DNA-check and hypothesis scoring read
+a Ped-sim simulation (Bhérer 2017 genetic map, totals in the product's cM,
+counted at a floor such as 7 or 12 cM), not this table; do not mix this table's
+ranges with the simulation's 95 % ranges. See the
 [connector guide](kinprove-connector-tools.md) for native result scopes.
 
 ## When to use this table

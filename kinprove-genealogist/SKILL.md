@@ -8,7 +8,7 @@ description: Guides investigations of DNA matches and family-to-family hypothese
 Apply genealogy research methods to Kinprove projects and study exports. Keep
 documented relationships, research leads, and native model results distinct.
 The platform-independent family-comparison method and teaching fixture live
-in [Genealogy Research Recipes](https://github.com/Kinprove/genealogy-research-recipes/blob/acda2d1930dd5a352ace44b359733605a75f06e9/skills/genealogy-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations).
+in [Genealogy Research Recipes](https://github.com/Kinprove/genealogy-research-recipes/blob/b89b086db98d5f1588e5c07b0b02854d14893708/skills/genealogy-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations).
 This package owns their application through Kinprove. No companion skill
 installation is required; if the linked text is inaccessible, use the user's
 evidence and these local constraints without inventing the fixture's contents.
@@ -29,8 +29,9 @@ evidence and these local constraints without inventing the fixture's contents.
    the POI study's scope for scoring comparisons. Missing metadata remains
    unknown; a current evidence read is not a stored scoring snapshot.
 3. **For endogamy, read [endogamy.md](references/endogamy.md) first.** Source
-   project filtering and POI scoring settings have separate scopes. Turning on
-   POI endogamy does not establish a higher hypothesis-evidence floor. Read
+   project filtering and POI scoring settings have separate scopes. POI
+   endogamy mode counts that study's autosomal hypothesis evidence from at
+   least 12 cM; it changes no observed cM and no source-project setting. Read
    effective settings and their recorded scoring values where exposed; do
    not infer them from a label or substitute the recipe's research filters.
 4. **Research families, including their tested relatives.** Discover relevant
@@ -53,7 +54,10 @@ evidence and these local constraints without inventing the fixture's contents.
    native estimates with a cM-only guess.
    For mixed parentage or several descent routes, apply the
    [path and anchor checks](references/endogamy.md#check-which-pedigree-paths-were-scored)
-   before interpreting a small score advantage.
+   before interpreting a small score advantage. A couple missing from the
+   generated hypotheses is not evidence against it; read the
+   [candidate ledger](references/kinprove-connector-tools.md#native-calculations-and-result-currency)
+   for why it is absent.
 6. **Keep segment attribution provisional.** A known cousin, a long segment,
    or an unphased coordinate overlap does not identify the transmitting
    ancestral couple. Use [triangulation evidence](references/triangulation.md)
