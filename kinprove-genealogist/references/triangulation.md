@@ -85,9 +85,10 @@ ancestral-couple attribution. See [X inheritance](x-dna-inheritance.md).
 
 Multiple descent paths and population sharing can make a real overlap
 ambiguous as to ancestor. Check source/pipeline filters and provenance where
-available. A POI endogamy toggle does not establish tighter triangulation or
-pair-evidence thresholds. Do not assume a blacklist eliminated every
-uninformative region in every stored source.
+available. POI endogamy mode raises that study's scored autosomal
+triangulation and pair-evidence floor to at least 12 cM; it does not
+reprocess detection or change stored triads. Do not assume a blacklist
+eliminated every uninformative region in every stored source.
 
 ## Hand-off
 

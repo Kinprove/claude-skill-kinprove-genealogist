@@ -92,7 +92,7 @@ one observation or record that would best distinguish the alternatives.
 
 ## Workflow 4 — Compare two families under endogamy
 
-Use the inputs and research interpretation in the [common fictional family case](https://github.com/Kinprove/genealogy-research-recipes/blob/acda2d1930dd5a352ace44b359733605a75f06e9/skills/genealogy-research-recipes/recipes/ai-for-dna-research.md#fictional-worked-comparison).
+Use the inputs and research interpretation in the [common fictional family case](https://github.com/Kinprove/genealogy-research-recipes/blob/b89b086db98d5f1588e5c07b0b02854d14893708/skills/genealogy-research-recipes/recipes/ai-for-dna-research.md#fictional-worked-comparison).
 The family map and segment table are maintained there. The sequence below
 shows their Kinprove application, assuming the user authorized inspection
 and copied POI studies for generation and sensitivity comparisons. It does

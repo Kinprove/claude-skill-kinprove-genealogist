@@ -1,6 +1,6 @@
 # Endogamy in a Kinprove research study
 
-Use the [general family-comparison recipe](https://github.com/Kinprove/genealogy-research-recipes/blob/acda2d1930dd5a352ace44b359733605a75f06e9/skills/genealogy-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations)
+Use the [general family-comparison recipe](https://github.com/Kinprove/genealogy-research-recipes/blob/b89b086db98d5f1588e5c07b0b02854d14893708/skills/genealogy-research-recipes/recipes/ai-for-dna-research.md#compare-families-across-branches-and-generations)
 for the method, evidence caveats, and fictional teaching case. This reference
 maps that work to Kinprove settings and native results. The recipe's research
 filters are not Kinprove defaults, a scoring formula, or corrected odds.
@@ -15,21 +15,23 @@ value, scope, and source; read those fields rather than guessing from a label.
 | Setting or evidence stage | Kinprove interpretation |
 |---|---|
 | Source project's `dna_assignment_profile` / effective `dna_profile` | Resolves the project hypothesis-evidence floor and other stage-specific defaults. Today's profile does not establish a stored pair's processing history. |
-| `evidence_min_segment_cm` | Hypothesis-evidence floor: the greater of the project floor and a POI-local cutoff. Inspect `value`, `project_value`, `poi_value`, `scope`, and `source`. |
+| `evidence_min_segment_cm` | Hypothesis-evidence floor: the greatest of the project floor, 12 cM while POI endogamy mode is on, and a POI-local cutoff. Inspect `value`, `project_value`, `poi_value`, `scope`, and `source` (`dna_profile`, `endogamy_mode`, or `poi_setting`). |
 | `scored_triangulation_min_segment_cm` | The same effective floor applied to scored autosomal triangulation rows (`applies_to: autosomal_rows`), with the same `value`, `scope`, and `source` as `evidence_min_segment_cm`. Shorter rows appear in `triangulation_trace` as excluded, never as support. |
-| POI `endogamy_mode` | Persisted scoring mode, including degree-dependent variance. It does not by itself increase the hypothesis-evidence floor or change observed cM. |
+| POI `endogamy_mode` | Persisted scoring mode. It lifts the counting floor to 12 cM for that POI's hypothesis scoring and generation: floor = max(project floor, 12 cM when the POI is in endogamy mode, POI cutoff), on the 0.5 cM grid. There is no degree-dependent variance or SD widening. It does not change observed cM. A heuristic-detected endogamy changes no score. The DNA check's lenient rescue of a positive "low" applies only to a project with the declared endogamous profile. |
 | `imported_triad_min_segment_cm` | Separate imported-triangulation floor following the POI endogamy mode. It is not the pair-evidence floor. |
 | `raw_detection_min_segment_cm` | Current profile-derived detection setting with `applies_to: same_provider_pairs`. It does not certify historical detector settings or trigger reprocessing. |
 | Raw/imported segment and triangulation provenance | Read the available detector/import metadata, coordinate build, and engine/provider method separately. A configured floor or stored triad does not establish phase or parental origin. |
-| `endogamous_preset` (where exposed) | The configured **Endogamous — minimum N cM** preset. `min_segment_cm` is N; `applied` is true only when POI endogamy mode is on and the effective hypothesis-evidence floor is at least N. Endogamy on with a lower floor is a custom setup, not the preset. |
+| `endogamous_preset` (where exposed) | The configured **Endogamous — minimum N cM** preset. `min_segment_cm` is N; `applied` is true only when POI endogamy mode is on and the effective hypothesis-evidence floor is at least N. Endogamy mode itself raises the floor to N, so `applied` is true whenever the mode is on. |
 
 To set up an endogamous study deliberately, send `scoring_preset: "endogamous"`
 on `create_poi_project`, or alone on `update_poi_project`. It turns the POI
 endogamy mode on and raises the POI hypothesis-evidence floor to at least N,
-keeping a stricter existing floor. For a controlled experiment (for example
-endogamy on at the project's 7 cM floor), set `endogamy_mode` and
-`evidence_min_segment_cm` explicitly instead; the two approaches cannot be
-mixed in one call. Either way, read `effective_scoring_settings` afterwards and
+keeping a stricter existing floor. For a controlled experiment, set
+`endogamy_mode` and `evidence_min_segment_cm` explicitly instead; the two
+approaches cannot be mixed in one call. Endogamy mode always counts at 12 cM or
+more, so "endogamy on at 7 cM" no longer exists. To compare floors, compare a
+POI with endogamy off and an explicit 12 cM cutoff against the same POI at
+7 cM. Either way, read `effective_scoring_settings` afterwards and
 rescore before interpreting results. The preset sets only those two
 settings: the hypothesis-evidence floor, and the endogamy mode with its usual
 effects, including the separate `imported_triad_min_segment_cm`. That floor
@@ -86,7 +88,9 @@ expected sharing: a detected path count alone does not raise the expectation,
 because distant extra routes can carry zero weight.
 
 The separate `relationship_probabilities` tool accepts `largest_segment_cm`
-as **advisory, unused in scoring** in the maintained schema. A displayed long
+as **advisory, unused in scoring** in the maintained schema. Its `endogamy`
+flag only counts segments from 12 cM (it rejects a lower `min_segment_cm`); it
+widens no range and does not show that a population is endogamous. A displayed long
 segment can guide research without receiving a native score bonus. Inspect
 any triangulation component or trace at its own stated strength; do not add
 length weights, sum multipath expectations manually, or turn a `good` fit
@@ -133,7 +137,8 @@ where appropriate and read membership back.
 Where exposed, `create_poi_project` / `update_poi_project` accept
 `evidence_min_segment_cm` for that POI study only. A value must meet the
 project floor and the server's validation limits; `null` clears the local
-cutoff and restores the project floor. An update marks hypotheses stale
+cutoff and restores the project floor, or 12 cM while POI endogamy mode is
+on. An update marks hypotheses stale
 until rescored and does not reprocess DNA. Read the effective value back,
 perform the authorized rescore, and inspect its resulting settings record.
 A downstream filter cannot recover segments lost upstream.

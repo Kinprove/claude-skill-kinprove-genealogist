@@ -19,8 +19,11 @@ changing people/families, or deleting evidence. If the user has already
 requested a specific POI experiment or recalculation, carry it out within that
 scope without another permission loop. Honor the tool's confirmation contract
 (e.g. `confirmed: true` only for an already authorized action). Otherwise
-obtain the missing authorization for that concrete mutation. Check the action,
-not just a `manage_` prefix: some such tools also have read actions.
+obtain the missing authorization for that concrete mutation. No tool mixes
+reads and changes: reads live in `get_`/`list_`/`search_` tools, and every
+`manage_`/`run_` tool changes data in each of its actions (`get_ghost_tree`
+is the one read-named tool that can also store scores). Check each action's
+effect before confirming it.
 
 Source-tree edits assert genealogy. Hypothetical ghost-tree/POI edits are
 research mutations with different effects. Neither licenses the other. Keep
@@ -35,9 +38,37 @@ the connector; never request or reproduce credentials in a research report.
 - `list_dna_kits` — map kits to people, provider, and compute state. Include
   unlinked kits in the inventory's limitations rather than silently dropping
   them. `list_available_pois` supplies eligible people and kit short-ids.
+  `get_dna_kit` reads one kit's detail (declared build versus determined
+  assembly, compute state, match count); `manage_dna_kit` only reassigns or
+  deletes.
+- `get_dna_processing_status` — pipeline progress, batches, and jobs. Reading
+  it needs no confirmation; starting, recalculating, or cancelling processing
+  is `manage_dna_processing`, a mutation.
+- `list_provider_non_matches` — recorded observations that a provider showed no
+  match for a pair, confirmed and provisional. Each is a recorded absence, never
+  a measured 0 cM. `manage_provider_non_matches` records, removes, or resolves
+  one.
 - `get_ancestors`, `get_relationship` — bounded ancestry and known pair paths.
   Use these to connect relevant tested people to candidate families. A name
   collision is not identity; a depth-limited search is not exhaustive.
+- `detect_duplicate_individuals` — candidate duplicate people in one project
+  (`project_uuid`; `min_score` 0–1, default 0.6; paged). Each pair carries a
+  ranking `score` and raw `evidence` (name similarities, `date_agreement`,
+  `gender_conflict`, `directly_related`). Only people in the same normalized
+  surname or married-name group (blank surnames form one group) who pass quick
+  date and name checks are compared, so a missing pair does not show two
+  different people; read `scan.truncated`. A candidate is a lead to check in
+  records; `merge_individuals` is a source-tree edit with its own authorization.
+- `get_date_anomalies` — impossible (`severity: error`) and implausible
+  (`warning`) dates in one project tree: death before birth, a child born
+  before a parent, an extreme lifespan, parent age at a child's birth, a parent
+  who died before conception, age at marriage. A year-only or approximate date
+  is reported only when every date it could stand for breaks the rule, so no
+  finding does not prove the dates right. `summary` counts every finding that
+  matches the severity filter, beyond `limit`; omit `severity` to see both
+  kinds, and follow `truncated`. A refusal for a tree above the row limit
+  means unavailable, not clean. Treat a finding as a record question, not an
+  automatic correction.
 - `get_project_tree` — tree topology when the authorized project fits its
   response limit. For larger trees, inventory kits and walk their relevant
   ancestry in bounded steps; do not invent a general descendant tool.
@@ -45,16 +76,31 @@ the connector; never request or reproduce credentials in a research report.
   study membership, tree context, and participants. People may own several
   kits. Preserve both paths of a multiply related person, counting them once.
 
+## Import a provider segment file
+
+`preview_dna_segment_file` reads one MyHeritage or FamilyTreeDNA segment CSV
+sent as text and changes nothing: the detected format, the MyHeritage file
+owner, every person the file names, and, with your intended mappings, a
+parse-only dry run. `import_dna_segments` stores that file: a mutation that
+needs the user's authorization and the DNA consent statement quoted in its
+description. Map each `csv_name` explicitly to an existing person (exactly one
+reference, the file owner); the tool never creates people, and names you leave
+unmapped are skipped and reported. MyHeritage "All selected DNA Matches" rows
+are stored as imported triads of the reference and every mapped match.
+Re-importing the same file stores nothing new; a higher-priority provider's
+rows replace a lower-priority provider's rows for the same pair and chromosome.
+
 ## Choose the evidence surface deliberately
 
 | Tool | Read scope and interpretation |
 |---|---|
 | `get_pair_segment_evidence` | Current raw and imported evidence for two people, native selected kit pair, effective autosomal filter, counted/excluded rows, and complete distribution summaries. Optional POI scope applies that study's kit pins and pair overrides. Segment rows may be paginated/capped; this is a live extraction, not a stored scoring snapshot. See the detailed contract below. |
 | `get_kit_matches` | Current project-assigned **raw** segments, aggregated for one focal kit and each counterpart kit, sorted by `total_cm`. The checked implementation sums chromosomes together: this is not an autosomal-only total. `is_canonical_match_kit` helps identify duplicate people, but does not certify the pair chosen by a POI scorer. |
-| `list_dna_segment_references`, `get_dna_segment_detail` | **Imported** segment references and per-person imported match breakdowns. Detail takes `individual_id`, not `kit_id`. Provider summaries and row availability may differ. |
+| `list_dna_segment_references`, `get_dna_segment_detail` | **Imported** segment references and per-person imported match breakdowns. Detail takes `individual_id`, not `kit_id`. Provider summaries and row availability may differ. `get_dna_segment_detail`'s imported triads are REFERENCE-SCOPED (only triads the provider exported with this person as reference; `imported_triangulation_scope: "reference"` in the response says so) — an empty imported set does not mean no stored triad names this person as a participant; use `get_imported_triangulations` with `role: any` for the participant side. |
 | `get_segment_region_overlaps` | **Imported segments only** in the checked contract. `min_cm` filters whole-segment cM, not overlap length or the POI evidence floor. Empty results do not exclude raw segments in the interval. |
-| `get_kit_triangulations` | Stored engine-computed or provider-imported triads touching one kit. Read `evidence.source`, `method`, `phasing`, `parental_origin`, and X-path metadata where present. Constituent raw pairwise intervals cover eligible triads, not the complete raw pair distribution. |
-| `get_dna_check_pairs` | Autosomal/X totals, counts, largest autosomal segment, source, expected sharing, and fit from an identified DNA-check run. These are stored results, not necessarily today's pair evidence or a POI's filtered evidence. |
+| `get_kit_triangulations` | Stored engine-computed or provider-imported triads touching one kit. Read `evidence.source`, `method`, `phasing`, `parental_origin`, and X-path metadata where present. Constituent raw pairwise intervals cover eligible triads, not the complete raw pair distribution. Its imported triads are also REFERENCE-SCOPED (only triads the provider exported with this kit's person as reference; `imported_triangulation_scope: "reference"` in the response) — an empty imported set does not mean no stored triad names this person as a participant; use `get_imported_triangulations` with `role: any` for the participant side. |
+| `get_imported_triangulations` | Provider-imported triads naming one individual as reference OR participant, by short-id — no kit needed, so kit-less participants are reachable. `role` (`any` default, `reference`, `participant`) scopes which side; each row keeps its ORIGINAL reference (`reference_individual {id, name}`) and `individual_role`, in the same row shape as `get_kit_triangulations`' imported rows. Always paginated (50 default, 200 max); the response's `imported_triangulation_scope` echoes `role`. |
+| `get_dna_check_pairs` | Autosomal/X totals, counts, largest autosomal segment, source, expected sharing, and fit from an identified DNA-check run. Expected sharing is the mean and 95 % range of a Ped-sim simulation (Bhérer 2017 map, totals in the product's cM) counted at the run's recorded floor; `expected_segment_range` is the simulated range of counted segments among pairs with at least one, and is null for a pair with none, for imported evidence and for a run scored before the simulated reference. Such a run reads stale (`reference_changed`): re-run the check. These are stored results, not necessarily today's pair evidence or a POI's filtered evidence. |
 | `get_hypothesis_detail` | Native `scoring.components`, `participant_fits`, and stored triangulation support. `observed_cm` is filtered autosomal evidence; `shared_cm_with_poi` in `get_participants` is unfiltered. Read `applicable`, `evidence_source`, and the actual common ancestor used for each fit. For a multipath fit, `multipath_calculation` shows counted/zero-weight routes and consanguinity steps behind `expected_cm`. A null trace can mean no multipath calculation was applied or an older snapshot; neither establishes a single-route pedigree. Read `scoring_run_id` / `hypotheses_stale` and apply the [path and anchor checks](endogamy.md#check-which-pedigree-paths-were-scored). |
 
 Follow pagination and declared caps. Do not describe one page as the full
@@ -161,6 +207,20 @@ For native hypothesis work:
    `generate_hypotheses` call. Generation creates/replaces ghost hypotheses
    and can clear prior branches. Inspect its outcome and scoring currency;
    reuse existing fresh results when the request is inspection only.
+   To learn why an ancestral couple is absent, read `get_candidate_ledger`
+   (`poi_project_uuid`; optional `status`, `anchor_couple_family_id`,
+   `limit`/`offset`). Each couple the last generation run looked at has a
+   `generation.status` (`generated`, `blocked`, `incomplete_couple`,
+   `depth_unresolved`, `coverage_below_threshold`, `all_depths_rejected`) with
+   its coverage and per-depth rejections, and a `current.status` for today's
+   scoring. Couples from `list_available_anchor_couples` that the run never
+   recorded are listed as `not_enumerated`, or `unknown_truncated` when the
+   ledger hit its cap.
+   `ledger: null` with `reason: not_generated` means no recorded history, not
+   a rejection. Check `settings_drift` and `hypotheses_stale` before relying on
+   an older ledger. Absence from the hypotheses is never negative evidence;
+   evaluating a rejected couple explicitly is the `manage_hypothesis_scenario`
+   `create_against_anchor` mutation.
 4. `list_hypotheses` and `get_hypothesis_detail` expose candidates and native
    support. Inspect `scoring.components` and participant fits; `via_mrca`
    means the fit can use a different common ancestor than the scenario's
@@ -178,22 +238,37 @@ For native hypothesis work:
 
 The backend owns calculations for both frontend and MCP. Compare the same
 scenario, POI, evidence, and scoring context. `rank` is the per-POI scoring
-rank; ghost-tree `display_rank` is a couple-grouped presentation position and
-can differ. Composites can have no persisted scoring rank. `scoring_run_id`
+rank, and equal scores share it (1, 1, 3); ghost-tree `display_rank` is a
+couple-grouped presentation position and can differ. Scenarios sharing an
+`evidence_group` have the same DNA expectation for every relative: the DNA cannot
+tell them apart, and only non-DNA terms (dates, generations, half, triangulation,
+X) order them. They share one `entry_rank`, the position of their group among the
+POI's entries; report a group as one candidate with its members. Composites can have no persisted scoring rank. `scoring_run_id`
 on ghost-tree/scenario reads names the project's latest scoring run, not
 necessarily each scenario's provenance after a single-POI rescore. Equal IDs
 show no intervening scoring pass, not that every result shares one snapshot.
 
 `relationship_probabilities` is a native cM-based alternative comparison,
-not the tree-aware POI engine. Its checked schema says `largest_segment_cm`
-is advisory and unused in scoring. Do not infer a length weight from a
+not the tree-aware POI engine. It scores the 53 named relationship types
+against a Ped-sim simulation (Bhérer 2017 genetic map, totals in the product's
+cM), counting only segments of at least `min_segment_cm` (default 7; default 12
+with `endogamy`, which rejects a lower value). The types carry equal weights,
+and the tool has no "not related" outcome and no background matching between
+unrelated people, so each probability is conditional on one named type being
+true. `segment_count` is reported against each type's simulated count range
+(`segment_count_inside`) and changes no probability. The range and the check
+are null for `parent`, because a perfect simulated detector always finds 22
+segments there. Its checked schema says
+`largest_segment_cm` is advisory and unused in scoring. Do not infer a length weight from a
 returned largest-segment field. Native `good`, likelihood, probability, and
 rank remain conditional model outputs; do not add custom bonuses or compare
 probabilities across different cohorts/candidate sets as the same quantity.
 
 Before comparing placements, read `scoring.cohort` and `scoring.coverage` on
 each scenario. A placement that connects more selected participants gains
-`participant_bonus` for each of them, even at 0 cM, and its `avg_likelihood`
+`participant_bonus` for each of them, even at 0 cM — except a participant the
+user confirmed as a non-match (`observation` `confirmed_zero`), whose 0 cM
+stays in the average but earns no bonus — and its `avg_likelihood`
 covers different people, so a raw-score or probability gap between scenarios
 with different `connected` counts is not DNA-only support.
 `compare_hypotheses` lists such pairs in `coverage_driven_orderings`; list,

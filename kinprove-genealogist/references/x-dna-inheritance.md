@@ -31,7 +31,9 @@ Read the current connector schemas and evidence source:
 - DNA-check `observed_autosomal_cm` / `autosomal_segments` and
   `observed_x_cm` / `x_segments` are separate. A general raw-kit `total_cm`
   is not automatically autosomal-only; see the [connector guide](kinprove-connector-tools.md).
-- `get_xdna_analysis` provides native X analysis through its declared actions.
+- `get_xdna_analysis` reads the stored native X analysis through its declared
+  read actions; `run_xdna_analysis` recomputes and stores it, so it needs the
+  user's authorization like any other data change.
   `get_kit_triangulations` can return X triads with method, phasing, parental
   origin, and recorded-tree X-path metadata.
 - `get_hypothesis_detail.participant_fits` can report `observed_x_cm`,
@@ -87,8 +89,9 @@ they do not enter X totals, counts, match membership, or hypothesis evidence.
 `get_pair_segment_evidence` exposes `effective_filters.x_segment_floor_cm`
 and `distribution.x_below_evidence_floor`. This product rule is separate from
 the detector's seed threshold, an imported-triad floor, and an X-path check's
-gate on summed evidence. A POI `endogamy_mode` flag does not establish those
-values. Read the connected deployment's actual fields; on an older export
+gate on summed evidence. A POI `endogamy_mode` flag leaves the X product
+floor and the detector's seed unchanged; it does set the separate imported-triad
+floor. Read the connected deployment's actual fields; on an older export
 without the cutoff, keep it unknown instead of retroactively claiming that
 10 cM was applied. The product cutoff is not a universal biological rule.
 
